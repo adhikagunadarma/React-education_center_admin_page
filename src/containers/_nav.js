@@ -19,7 +19,7 @@ const _nav =  [
   {
     _tag: 'CSidebarNavItem',
     name: 'Category',
-    to: '/dashboard',
+    to: '/list-category',
     icon: <CIcon name="cil-tags" customClasses="c-sidebar-nav-icon"/>,
 
   },

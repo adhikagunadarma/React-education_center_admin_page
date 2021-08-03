@@ -38,6 +38,12 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'));
 const Users = React.lazy(() => import('./views/users/Users'));
 const User = React.lazy(() => import('./views/users/User'));
 
+
+const ListCategory = React.lazy(() => import('./views/pages/category/ListCategory'));
+// const AddCategory = React.lazy(() => import('./pages/category/AddCategory'));
+// const ListVideo = React.lazy(() => import('./pages/category/ListVideo'));
+// const AddVideo = React.lazy(() => import('./pages/category/AddVideo'));
+
 const routes = [
   { path: '/', exact: true, name: 'Home' },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
@@ -78,7 +84,13 @@ const routes = [
   { path: '/notifications/toaster', name: 'Toaster', component: Toaster },
   { path: '/widgets', name: 'Widgets', component: Widgets },
   { path: '/users', exact: true,  name: 'Users', component: Users },
-  { path: '/users/:id', exact: true, name: 'User Details', component: User }
+  { path: '/users/:id', exact: true, name: 'User Details', component: User },
+
+  
+  { path: '/list-category', exact: true,  name: 'List Category', component: ListCategory },
+  // { path: '/add-category', exact: true,  name: 'List Video', component: AddCategory },
+  // { path: '/list-video', exact: true,  name: 'List Video', component: ListVideo },
+  // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
 ];
 
 export default routes;
