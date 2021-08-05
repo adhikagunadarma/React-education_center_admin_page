@@ -128,7 +128,8 @@ import {
   cilX,
   cilXCircle,
   cilWarning,
-  cilAirplay
+  cilAirplay,
+  cilPlus,
   
 } from '@coreui/icons'
 
@@ -229,6 +230,7 @@ export const icons = Object.assign({}, {
   cilXCircle,
   cilWarning,
   cilAirplay,
+  cilPlus,
 }, {
   cifUs,
   cifBr,

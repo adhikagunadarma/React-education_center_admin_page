@@ -6,13 +6,17 @@ import {
   CCardHeader,
   CCol,
   CDataTable,
-  CRow
+  CRow,
+  CButton,
 } from '@coreui/react'
+
+import CIcon from '@coreui/icons-react'
 import { DocsLink } from 'src/reusable'
 
 // import usersData from '../../users/UsersData'
 
 import categories from '../../users/CategoriesData'
+import { Link } from 'react-router-dom'
 
 const getBadge = status => {
   switch (status) {
@@ -34,6 +38,14 @@ const ListCategory = () => {
           <CCard>
             <CCardHeader>
               List Category
+              <div className="card-header-actions">
+                <Link to="/add-category">
+                <CButton block variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1">
+              <CIcon size="sm" name="cil-plus" className="float-right"/>
+                <span className="mfs-2">Add Category &nbsp;</span></CButton>
+                </Link>
+         
+              </div>
             </CCardHeader>
             <CCardBody>
             <CDataTable
@@ -45,16 +57,34 @@ const ListCategory = () => {
               size="sm"
               itemsPerPage={15}
               pagination
-              // scopedSlots = {{
-              //   'status':
-              //     (item)=>(
-              //       <td>
-              //         <CBadge color={getBadge(item.status)}>
-              //           {item.status}
-              //         </CBadge>
-              //       </td>
-              //     )
-              // }}
+              scopedSlots = {{
+                'action':
+                (item, index)=>{
+                  return (
+                    <td className="py-3">
+                      <CButton
+                        color="warning"
+                        variant="outline"
+                        shape="square"
+                        size="sm"
+                        className="mr-1 mb-1"
+                      >
+                        Update
+                      </CButton>
+                      
+                      <CButton
+                        color="danger"
+                        variant="outline"
+                        shape="square"
+                        size="sm"
+                        className="mr-1 mb-1"
+                      >
+                        Delete
+                      </CButton>
+                    </td>
+                    )
+                }
+              }}
             />
             </CCardBody>
           </CCard>

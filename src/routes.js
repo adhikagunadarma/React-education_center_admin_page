@@ -40,7 +40,7 @@ const User = React.lazy(() => import('./views/users/User'));
 
 
 const ListCategory = React.lazy(() => import('./views/pages/category/ListCategory'));
-// const AddCategory = React.lazy(() => import('./pages/category/AddCategory'));
+const AddCategory = React.lazy(() => import('./views/pages/category/AddCategory'));
 // const ListVideo = React.lazy(() => import('./pages/category/ListVideo'));
 // const AddVideo = React.lazy(() => import('./pages/category/AddVideo'));
 
@@ -88,7 +88,7 @@ const routes = [
 
   
   { path: '/list-category', exact: true,  name: 'List Category', component: ListCategory },
-  // { path: '/add-category', exact: true,  name: 'List Video', component: AddCategory },
+  { path: '/add-category', exact: true,  name: 'Add Category', component: AddCategory },
   // { path: '/list-video', exact: true,  name: 'List Video', component: ListVideo },
   // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
 ];
