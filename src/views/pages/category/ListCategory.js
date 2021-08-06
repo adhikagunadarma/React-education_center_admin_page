@@ -8,6 +8,7 @@ import {
   CDataTable,
   CRow,
   CButton,
+  CLink
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
@@ -39,11 +40,11 @@ const ListCategory = () => {
             <CCardHeader>
               List Category
               <div className="card-header-actions">
-                <Link to="/add-category">
+                <CLink to="/add-category">
                 <CButton block variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1">
               <CIcon size="sm" name="cil-plus" className="float-right"/>
                 <span className="mfs-2">Add Category &nbsp;</span></CButton>
-                </Link>
+                </CLink>
          
               </div>
             </CCardHeader>
