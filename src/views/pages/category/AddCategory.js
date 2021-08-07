@@ -19,7 +19,8 @@ import {
   CToast,
   CToastHeader,
   CToastBody,
-  CInvalidFeedback
+  CInvalidFeedback,
+  CValidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -39,6 +40,7 @@ const AddCategory = () => {
   const [fade, setFade] = React.useState(true)
   const [statusColor , setStatusColor] = React.useState('info')
   const [statusMessage , setStatusMessage] = React.useState('')
+  const [validationError , setValidationError] = React.useState(false)
   
   const [toasts, setToasts] = React.useState([])
 
@@ -59,15 +61,16 @@ const AddCategory = () => {
   useEffect(() => {
     if (statusMessage != ''){
       addToast() // kalo abis ada perubahan status message / color, baru add tiast
-      setStatusMessage('')
-      setStatusColor('info')
+      // setStatusMessage('')
+      // setStatusColor('info')
     }
  }, [statusColor,statusMessage]);
 
   function submitData() {
     if (categoryName === '' || categoryDesc === ''){
-      setStatusColor("warning")
-      setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+      // setStatusColor("warning")
+      // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+      setValidationError(true)
       return
     }
     setLoadingModal(true)
@@ -115,13 +118,14 @@ const AddCategory = () => {
               <small>  Forms</small>
             </CCardHeader>
             <CCardBody>
-              <CForm action="" method="post" encType="multipart/form-data" className="form-horizontal">
+              <CForm className={"form-horizontal " + (validationError ? 'was-validated' : '')}>
+                {/* tinggal nambahin class name was validated pas submit button aja */}
                 <CFormGroup row>
                   <CCol md="3">
                     <CLabel htmlFor="categoryInput">Category Name *</CLabel>
                   </CCol>
                   <CCol xs="12" md="9">
-                    <CInput className="form-control-warning" id="categoryInput" value={categoryName} name="text-input" placeholder="Nama Kategori" onChange={event => setCategoryName(event.target.value)} required/>
+                    <CInput className="form-control-warning " id="categoryInput" value={categoryName} name="text-input" placeholder="Nama Kategori" onChange={event => setCategoryName(event.target.value)} required/>
                     <CInvalidFeedback className="help-block" >
                     Please provide a valid category name
                   </CInvalidFeedback>
@@ -145,6 +149,7 @@ const AddCategory = () => {
                   </CInvalidFeedback>
                   </CCol>
                 </CFormGroup>
+           
                 </CForm>
             </CCardBody>
             <CCardFooter>
