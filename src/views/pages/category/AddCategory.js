@@ -18,7 +18,8 @@ import {
   CToaster,
   CToast,
   CToastHeader,
-  CToastBody
+  CToastBody,
+  CInvalidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -58,10 +59,17 @@ const AddCategory = () => {
   useEffect(() => {
     if (statusMessage != ''){
       addToast() // kalo abis ada perubahan status message / color, baru add tiast
+      setStatusMessage('')
+      setStatusColor('info')
     }
  }, [statusColor,statusMessage]);
 
   function submitData() {
+    if (categoryName === '' || categoryDesc === ''){
+      setStatusColor("warning")
+      setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+      return
+    }
     setLoadingModal(true)
     return new Promise((resolve) => {
         const baseEndpoint = "http://localhost:8080"
@@ -110,16 +118,18 @@ const AddCategory = () => {
               <CForm action="" method="post" encType="multipart/form-data" className="form-horizontal">
                 <CFormGroup row>
                   <CCol md="3">
-                    <CLabel htmlFor="text-input">Nama</CLabel>
+                    <CLabel htmlFor="categoryInput">Category Name *</CLabel>
                   </CCol>
                   <CCol xs="12" md="9">
-                    <CInput id="text-input" value={categoryName} name="text-input" placeholder="Nama Kategori" onChange={event => setCategoryName(event.target.value)}/>
-                    <CFormText>Silahkan Isi nama Kategori</CFormText>
+                    <CInput className="form-control-warning" id="categoryInput" value={categoryName} name="text-input" placeholder="Nama Kategori" onChange={event => setCategoryName(event.target.value)} required/>
+                    <CInvalidFeedback className="help-block" >
+                    Please provide a valid category name
+                  </CInvalidFeedback>
                   </CCol>
                 </CFormGroup>
                 <CFormGroup row>
                   <CCol md="3">
-                    <CLabel htmlFor="textarea-input">Deskripsi</CLabel>
+                    <CLabel htmlFor="textarea-input">Category Description *</CLabel>
                   </CCol>
                   <CCol xs="12" md="9">
                     <CTextarea  value={categoryDesc}
@@ -128,7 +138,11 @@ const AddCategory = () => {
                       rows="9"
                       placeholder="Deskripsi kategori..." 
                       onChange={event => setCategoryDesc(event.target.value)}
+                      required
                     />
+                      <CInvalidFeedback className="help-block">
+                    Please provide a valid category description
+                  </CInvalidFeedback>
                   </CCol>
                 </CFormGroup>
                 </CForm>
