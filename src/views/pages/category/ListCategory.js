@@ -9,6 +9,9 @@ import {
   CRow,
   CButton,
   CLink,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
   CModal,
   CModalBody,
   CToaster,
@@ -47,6 +50,9 @@ const [fade, setFade] = React.useState(true)
 const [statusColor , setStatusColor] = React.useState('info')
 const [statusMessage , setStatusMessage] = React.useState('')
 
+const [selectedCategory, setSelectedCategory] = React.useState('')
+const [deleteModal, setDeleteModal] = React.useState(false)
+
 const [toasts, setToasts] = React.useState([])
 
 const addToast = () => {
@@ -68,6 +74,7 @@ useEffect(() => {
   if (statusMessage != ''){
     addToast() // kalo abis ada perubahan status message / color, baru add tiast
   }
+
 }, [statusColor,statusMessage]);
 
 function getData() {
@@ -80,7 +87,7 @@ function getData() {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
       };
-      fetch(baseEndpoint + pathEndpoint)
+      fetch(baseEndpoint + pathEndpoint, requestOptions)
           .then(response => response.json())
           .then(data => {
             setTimeout((_) => {
@@ -100,6 +107,45 @@ function getData() {
 
 
 }
+
+function deleteData(data,index){
+  // console.log(index)
+  console.log(data)
+  setSelectedCategory(data)
+  setDeleteModal(true)
+}
+
+function confirmDelete(){
+  setDeleteModal(false)
+  setLoadingModal(true)
+  return new Promise((resolve) => {
+      const baseEndpoint = "http://localhost:8080"
+      const pathEndpoint = "/api/educen/category/" + selectedCategory.id
+      const requestOptions = {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+      };
+      fetch(baseEndpoint + pathEndpoint,requestOptions)
+          .then(response => response.json())
+          .then(data => {
+            setTimeout((_) => {
+              setLoadingModal(false)
+              if (data.statusCode === 0){
+                resolve(true)
+                setStatusColor('success')
+              }else{
+                resolve(false)
+                setStatusColor('danger')
+              }
+              
+              setStatusMessage(data.statusMessage)
+            },1000)
+   
+          });
+  })
+
+}
+
   return (
     <>
      
@@ -148,6 +194,7 @@ function getData() {
                         shape="square"
                         size="sm"
                         className="mr-1 mb-1"
+                        onClick={()=>{deleteData(item,index)}}
                       >
                         Delete
                       </CButton>
@@ -165,6 +212,32 @@ function getData() {
               <CModalBody>
                 Please wait a moment..
               </CModalBody>
+            </CModal>
+            <CModal 
+              show={deleteModal} 
+              onClose={() => {
+                setDeleteModal(false)
+                setSelectedCategory('')
+              }}
+            >
+              <CModalHeader closeButton>
+                <CModalTitle>Delete Confirmation</CModalTitle>
+              </CModalHeader>
+              <CModalBody>
+                Are you sure you want to delete category name {selectedCategory.name} ?
+              </CModalBody>
+              <CModalFooter>
+                <CButton color="danger"
+                onClick={confirmDelete}
+                >Delete</CButton>
+                <CButton 
+                  color="secondary" 
+                  onClick={() => {
+                    setDeleteModal(false)
+                    setSelectedCategory('')
+                  }}
+                >Cancel</CButton>
+              </CModalFooter>
             </CModal>
         </CCol>
         <CCol sm="12" lg="12">
