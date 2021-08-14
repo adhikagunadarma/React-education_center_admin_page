@@ -23,10 +23,10 @@ import {
   CValidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { useHistory } from "react-router-dom";
-import Toaster from 'src/views/notifications/toaster/Toaster';
+import { useHistory, useParams } from "react-router-dom";
 
-const AddCategory = () => {
+const EditCategory = () => {
+  const { data } = useParams();
   
   const history = useHistory();
   const [loadingModal, setLoadingModal] = React.useState(false)
@@ -63,6 +63,10 @@ const AddCategory = () => {
       addToast() // kalo abis ada perubahan status message / color, baru add tiast
       // setStatusMessage('')
       // setStatusColor('info')
+    }
+    console.log(data)
+    if (data != null){
+      console.log(data)
     }
  }, [statusColor,statusMessage]);
 
@@ -114,7 +118,7 @@ const AddCategory = () => {
         <CCol xs="12" md="12">
           <CCard>
             <CCardHeader>
-              Add Category
+              Edit Category
               <small>  Forms</small>
             </CCardHeader>
             <CCardBody>
@@ -200,4 +204,4 @@ const AddCategory = () => {
   )
 }
 
-export default AddCategory
+export default EditCategory

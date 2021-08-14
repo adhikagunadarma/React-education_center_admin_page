@@ -113,7 +113,7 @@ function getData() {
 
 function goToEditCategory(data,index){
   // console.log(data.id)
-  history.push("/add-category/"+ data.id);
+  history.push("/edit-category/"+ data.id);
 }
 
 function deleteData(data,index){
