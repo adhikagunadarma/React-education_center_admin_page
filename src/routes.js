@@ -89,6 +89,7 @@ const routes = [
   
   { path: '/list-category', exact: true,  name: 'List Category', component: ListCategory },
   { path: '/add-category', exact: true,  name: 'Add Category', component: AddCategory },
+  { path: '/add-category/:id', exact: true,  name: 'Update Category', component: AddCategory },
   // { path: '/list-video', exact: true,  name: 'List Video', component: ListVideo },
   // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
 ];

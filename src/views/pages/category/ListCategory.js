@@ -22,9 +22,8 @@ import {
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
-import { DocsLink } from 'src/reusable'
-import { Link } from 'react-router-dom'
 
+import { useHistory } from "react-router-dom";
 const getBadge = status => {
   switch (status) {
     case 'Active': return 'success'
@@ -38,6 +37,10 @@ const fields = ['name','description', 'action']
 
 
 const ListCategory = () => {
+
+  
+
+  const history = useHistory();
   
 const [loadingModal, setLoadingModal] = React.useState(false)
 const [categories, setCategories] = React.useState([])
@@ -106,6 +109,11 @@ function getData() {
   })
 
 
+}
+
+function goToEditCategory(data,index){
+  // console.log(data.id)
+  history.push("/add-category/"+ data.id);
 }
 
 function deleteData(data,index){
@@ -178,15 +186,20 @@ function confirmDelete(){
                 (item, index)=>{
                   return (
                     <td className="py-3">
+                      {/* <CLink to="/add-category/"> */}
+          
                       <CButton
                         color="warning"
                         variant="outline"
                         shape="square"
                         size="sm"
                         className="mr-1 mb-1"
+                        onClick={()=>{goToEditCategory(item,index)}}
                       >
                         Update
                       </CButton>
+                      
+                {/* </CLink> */}
                       
                       <CButton
                         color="danger"
