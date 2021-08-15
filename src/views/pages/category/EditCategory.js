@@ -26,7 +26,7 @@ import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
 
 const EditCategory = () => {
-  const { data } = useParams();
+  const { id } = useParams();
   
   const history = useHistory();
   const [loadingModal, setLoadingModal] = React.useState(false)
@@ -64,13 +64,46 @@ const EditCategory = () => {
       // setStatusMessage('')
       // setStatusColor('info')
     }
-    console.log(data)
-    if (data != null){
-      console.log(data)
+    if (id != null){
+      getData()
     }
  }, [statusColor,statusMessage]);
 
-  function submitData() {
+
+ function getData() {
+ 
+  setLoadingModal(true)
+  return new Promise((resolve) => {
+      const baseEndpoint = "http://localhost:8080"  
+      const pathEndpoint = "/api/educen/category/"+id
+      const requestOptions = {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+      };
+      fetch(baseEndpoint + pathEndpoint, requestOptions)
+          .then(response => response.json())
+          .then(data => {
+            setTimeout((_) => {
+              setLoadingModal(false)
+              if (data.statusCode === 0){
+                resolve(true)
+                // setStatusColor('success')
+                setCategoryName(data.data.name)
+                setCategoryDesc(data.data.description)
+              }else{
+                resolve(false)
+                // setStatusColor('danger')
+              }
+              // setStatusMessage(data.statusMessage)
+            },1000)
+   
+          });
+  })
+
+
+}
+
+  function saveData() {
     if (categoryName === '' || categoryDesc === ''){
       // setStatusColor("warning")
       // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
@@ -80,9 +113,9 @@ const EditCategory = () => {
     setLoadingModal(true)
     return new Promise((resolve) => {
         const baseEndpoint = "http://localhost:8080"
-        const pathEndpoint = "/api/educen/category"
+        const pathEndpoint = "/api/educen/category/"+id
         const requestOptions = {
-            method: 'POST',
+            method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               name: categoryName, 
@@ -114,7 +147,6 @@ const EditCategory = () => {
   return (
     <>
       <CRow>
-     
         <CCol xs="12" md="12">
           <CCard>
             <CCardHeader>
@@ -157,7 +189,7 @@ const EditCategory = () => {
                 </CForm>
             </CCardBody>
             <CCardFooter>
-              <CButton onClick={submitData} className="mr-1 mb-1" type="submit" size="sm" color="primary"><CIcon name="cil-scrubber" /> Submit</CButton>
+              <CButton onClick={saveData} className="mr-1 mb-1" type="submit" size="sm" color="primary"><CIcon name="cil-scrubber" /> Submit</CButton>
               <CButton className="mr-1 mb-1" type="reset" size="sm" color="danger"><CIcon name="cil-ban" /> Reset</CButton>
             </CCardFooter>
             <CModal 
