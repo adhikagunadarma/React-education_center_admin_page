@@ -26,7 +26,7 @@ const _nav =  [
   {
     _tag: 'CSidebarNavItem',
     name: 'Videos',
-    to: '/dashboard',
+    to: '/list-video',
     icon: <CIcon name="cil-airplay" customClasses="c-sidebar-nav-icon"/>,
 
   },
