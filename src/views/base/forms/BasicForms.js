@@ -663,7 +663,7 @@ const BasicForms = () => {
                   <CLabel htmlFor="inputWarning2i">Required input</CLabel>
                   <CInput className="form-control-warning" id="inputWarning2i" required />
                   <CInvalidFeedback className="help-block">
-                    Please provide a valid informationid
+                    Please provide a valid information id
                   </CInvalidFeedback>
                   <CValidFeedback className="help-block">Input provided</CValidFeedback>
                 </CFormGroup>
