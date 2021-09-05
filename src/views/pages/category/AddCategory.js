@@ -87,7 +87,8 @@ const AddCategory = () => {
         body: JSON.stringify({
           categoryName: categoryName,
           categoryDescription: categoryDesc,
-          categoryThumbnail: categoryThumbnail
+          categoryThumbnail: categoryThumbnail,
+          categoryThumbnailName: categoryThumbnailName
         })
       };
       console.log(JSON.parse(requestOptions.body))

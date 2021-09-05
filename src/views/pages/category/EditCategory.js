@@ -124,8 +124,10 @@ const EditCategory = () => {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: categoryName,
-          description: categoryDesc
+          categoryName: categoryName,
+          categoryDescription: categoryDesc,
+          categoryThumbnail: categoryThumbnail,
+          categoryThumbnailName: categoryThumbnailName
         })
       };
       fetch(baseEndpoint + pathEndpoint, requestOptions)
