@@ -28,10 +28,14 @@ import Toaster from 'src/views/notifications/toaster/Toaster';
 
 const AddCategory = () => {
 
+  const filelimitSize = 5242880;
   const history = useHistory();
   const [loadingModal, setLoadingModal] = React.useState(false)
   const [categoryName, setCategoryName] = React.useState('')
   const [categoryDesc, setCategoryDesc] = React.useState('')
+  const [categoryThumbnail, setCategoryThumbnail] = React.useState('')
+  const [categoryThumbnailName, setCategoryThumbnailName] = React.useState('')
+
 
   const [position, setPosition] = React.useState('bottom-center')
   const [autohide, setAutohide] = React.useState(true)
@@ -81,10 +85,12 @@ const AddCategory = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: categoryName,
-          description: categoryDesc
+          categoryName: categoryName,
+          categoryDescription: categoryDesc,
+          categoryThumbnail: categoryThumbnail
         })
       };
+      console.log(JSON.parse(requestOptions.body))
       fetch(baseEndpoint + pathEndpoint, requestOptions)
         .then(response => response.json())
         .then(data => {
@@ -108,9 +114,33 @@ const AddCategory = () => {
   }
 
 
-  function getDocumentFromFile(event) {
-    console.log(event)
+  function getDocumentFromFile($event) {
+    if ($event.target.files[0]) {
+      var file = $event.target.files[0];
+      var fileSize = file.size;
+      var fileName = file.name;
+      var filePath = $event.target.value
+      if (fileSize < filelimitSize) {
+        fileToBase64(file).then((fileData) => {
+          setCategoryThumbnail(fileData)
+          setCategoryThumbnailName(fileName)
+
+        })
+      } else {
+        this.publicParam.presentAlert("Warning", this.warningFileLimit)
+      }
+    }
   }
+
+  function fileToBase64(file) {
+    return new Promise(resolve => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+    })
+
+  }
+
 
 
   return (
@@ -164,7 +194,14 @@ const AddCategory = () => {
                       <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
                         getDocumentFromFile(event)
                       }} accept="image/*" />
-                      <label className="custom-file-label" htmlFor="customFile">Choose file</label>
+                      <CLabel className="custom-file-label" htmlFor="customFile" >
+                        {categoryThumbnailName !== '' ? (
+                          categoryThumbnailName
+                        ) : (
+                          'Choose file'
+                        )}
+
+                      </CLabel>
                     </div>
                   </CCol>
                 </CFormGroup>
