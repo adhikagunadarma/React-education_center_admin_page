@@ -96,8 +96,9 @@ const Login = () => {
             if (data.statusCode === 0) {
               resolve(true)
               setStatusColor('success')
-              /// need to save the credential information in local to provide data later on when doing task
+              // need to save the credential information in local to provide data later on when doing task
               // also need to genertate token that save the credential for amount of time
+              // need to work on the routing, not login cannot access the page
               history.push("/dashboard");
             } else {
               resolve(false)

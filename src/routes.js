@@ -84,14 +84,14 @@ const routes = [
   { path: '/notifications/modals', name: 'Modals', component: Modals },
   { path: '/notifications/toaster', name: 'Toaster', component: Toaster },
   { path: '/widgets', name: 'Widgets', component: Widgets },
-  { path: '/users', exact: true,  name: 'Users', component: Users },
+  { path: '/users', exact: true, name: 'Users', component: Users },
   { path: '/users/:id', exact: true, name: 'User Details', component: User },
 
-  
-  { path: '/list-category', exact: true,  name: 'List Category', component: ListCategory },
-  { path: '/add-category', exact: true,  name: 'Add Category', component: AddCategory },
-  { path: '/edit-category/:id', exact: true,  name: 'Edit Category', component: EditCategory },
-  { path: '/list-video', exact: true,  name: 'List Video', component: ListVideo },
+
+  { path: '/list-category', exact: true, name: 'List Category', component: ListCategory },
+  { path: '/add-category', exact: true, name: 'Add Category', component: AddCategory },
+  { path: '/edit-category/:id', exact: true, name: 'Edit Category', component: EditCategory },
+  { path: '/list-video', exact: true, name: 'List Video', component: ListVideo },
   // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
 ];
 
