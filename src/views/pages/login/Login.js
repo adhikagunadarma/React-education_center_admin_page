@@ -1,5 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
+
+import { useHistory } from "react-router-dom";
 import {
   CButton,
   CCard,
@@ -13,12 +15,20 @@ import {
   CInputGroupPrepend,
   CInputGroupText,
   CRow,
-  CInvalidFeedback
+  CInvalidFeedback,
+  CModal,
+  CModalBody,
+  CToaster,
+  CToast,
+  CToastHeader,
+  CLabel,
+  CToastBody,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
 const Login = () => {
 
+  const history = useHistory();
   const [validationError, setValidationError] = React.useState(false)
 
   const [teacherUsername, setTeacherUsername] = React.useState('')
@@ -28,6 +38,35 @@ const Login = () => {
   const [loadingModal, setLoadingModal] = React.useState(false)
   const [statusColor, setStatusColor] = React.useState('info')
   const [statusMessage, setStatusMessage] = React.useState('')
+
+  const [position, setPosition] = React.useState('bottom-center')
+  const [autohide, setAutohide] = React.useState(true)
+  const [autohideValue, setAutohideValue] = React.useState(5000)
+  const [closeButton, setCloseButton] = React.useState(true)
+  const [fade, setFade] = React.useState(true)
+  const [toasts, setToasts] = React.useState([])
+
+  const addToast = () => {
+    setToasts([
+      ...toasts,
+      { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
+    ])
+  }
+  const toasters = (() => {
+    return toasts.reduce((toasters, toast) => {
+      toasters[toast.position] = toasters[toast.position] || []
+      toasters[toast.position].push(toast)
+      return toasters
+    }, {})
+  })()
+
+  useEffect(() => {
+    if (statusMessage != '') {
+      addToast() // kalo abis ada perubahan status message / color, baru add tiast
+      // setStatusMessage('')
+      // setStatusColor('info')
+    }
+  }, [statusColor, statusMessage]);
 
   function submitData() {
     if (teacherUsername === '' || teacherPassword === '') {
@@ -49,23 +88,25 @@ const Login = () => {
         })
       };
       console.log(JSON.parse(requestOptions.body))
-      // fetch(baseEndpoint + pathEndpoint, requestOptions)
-      //   .then(response => response.json())
-      //   .then(data => {
-      //     setTimeout((_) => {
-      //       setLoadingModal(false)
-      //       if (data.statusCode === 0) {
-      //         resolve(true)
-      //         setStatusColor('success')
-      //         history.push("/");
-      //       } else {
-      //         resolve(false)
-      //         setStatusColor('danger')
-      //       }
-      //       setStatusMessage(data.statusMessage)
-      //     }, 1000)
+      fetch(baseEndpoint + pathEndpoint, requestOptions)
+        .then(response => response.json())
+        .then(data => {
+          setTimeout((_) => {
+            setLoadingModal(false)
+            if (data.statusCode === 0) {
+              resolve(true)
+              setStatusColor('success')
+              /// need to save the credential information in local to provide data later on when doing task
+              // also need to genertate token that save the credential for amount of time
+              history.push("/dashboard");
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+            }
+            setStatusMessage(data.statusMessage)
+          }, 1000)
 
-      //   });
+        });
     })
 
 
@@ -74,7 +115,7 @@ const Login = () => {
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md="5">
+          <CCol md="6">
             <CCardGroup>
               <CCard className="p-5">
                 <CCardBody>
@@ -113,6 +154,14 @@ const Login = () => {
                     </CRow>
                   </CForm>
                 </CCardBody>
+                <CModal
+                  show={loadingModal}
+                  onClose={setLoadingModal}
+                >
+                  <CModalBody>
+                    Please wait a moment..
+                  </CModalBody>
+                </CModal>
               </CCard>
               {/* <CCard className="text-white bg-primary py-5 d-md-down-none" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
@@ -128,6 +177,36 @@ const Login = () => {
               </CCard> */}
             </CCardGroup>
           </CCol>
+
+        </CRow>
+        <CRow >
+          {Object.keys(toasters).map((toasterKey) => (
+            <CToaster
+              position={toasterKey}
+              key={'toaster' + toasterKey}
+            >
+              {
+                toasters[toasterKey].map((toast, key) => {
+                  return (
+                    <CToast
+                      key={'toast' + key}
+                      show={true}
+                      autohide={toast.autohide}
+                      fade={toast.fade}
+                      color={toast.statusColor}
+                    >
+                      <CToastHeader closeButton={toast.closeButton}>
+                        Alert Notification
+                      </CToastHeader>
+                      <CToastBody>
+                        <CLabel>{toast.statusMessage}</CLabel>
+                      </CToastBody>
+                    </CToast>
+                  )
+                })
+              }
+            </CToaster>
+          ))}
         </CRow>
       </CContainer>
     </div>

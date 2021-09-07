@@ -20,7 +20,6 @@ import {
   CToastHeader,
   CToastBody,
   CInvalidFeedback,
-  CValidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -36,16 +35,15 @@ const AddCategory = () => {
   const [categoryThumbnail, setCategoryThumbnail] = React.useState('')
   const [categoryThumbnailName, setCategoryThumbnailName] = React.useState('')
 
+  const [statusColor, setStatusColor] = React.useState('info')
+  const [statusMessage, setStatusMessage] = React.useState('')
+  const [validationError, setValidationError] = React.useState(false)
 
   const [position, setPosition] = React.useState('bottom-center')
   const [autohide, setAutohide] = React.useState(true)
   const [autohideValue, setAutohideValue] = React.useState(5000)
   const [closeButton, setCloseButton] = React.useState(true)
   const [fade, setFade] = React.useState(true)
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
-  const [validationError, setValidationError] = React.useState(false)
-
   const [toasts, setToasts] = React.useState([])
 
   const addToast = () => {
