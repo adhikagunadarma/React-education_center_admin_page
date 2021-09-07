@@ -12,11 +12,64 @@ import {
   CInputGroup,
   CInputGroupPrepend,
   CInputGroupText,
-  CRow
+  CRow,
+  CInvalidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
 const Login = () => {
+
+  const [validationError, setValidationError] = React.useState(false)
+
+  const [teacherUsername, setTeacherUsername] = React.useState('')
+  const [teacherPassword, setTeacherPassword] = React.useState('')
+
+
+  const [loadingModal, setLoadingModal] = React.useState(false)
+  const [statusColor, setStatusColor] = React.useState('info')
+  const [statusMessage, setStatusMessage] = React.useState('')
+
+  function submitData() {
+    if (teacherUsername === '' || teacherPassword === '') {
+      // setStatusColor("warning")
+      // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+      setValidationError(true)
+      return
+    }
+    setLoadingModal(true)
+    return new Promise((resolve) => {
+      const baseEndpoint = "http://localhost:8080"
+      const pathEndpoint = "/api/educen/teacher/login"
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          teacherUsername: teacherUsername,
+          teacherPassword: teacherPassword,
+        })
+      };
+      console.log(JSON.parse(requestOptions.body))
+      // fetch(baseEndpoint + pathEndpoint, requestOptions)
+      //   .then(response => response.json())
+      //   .then(data => {
+      //     setTimeout((_) => {
+      //       setLoadingModal(false)
+      //       if (data.statusCode === 0) {
+      //         resolve(true)
+      //         setStatusColor('success')
+      //         history.push("/");
+      //       } else {
+      //         resolve(false)
+      //         setStatusColor('danger')
+      //       }
+      //       setStatusMessage(data.statusMessage)
+      //     }, 1000)
+
+      //   });
+    })
+
+
+  }
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
       <CContainer>
@@ -25,7 +78,7 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-5">
                 <CCardBody>
-                  <CForm>
+                  <CForm className={"form-horizontal " + (validationError ? 'was-validated' : '')}>
                     <h1>Login</h1>
                     <p className="text-muted">Sign In to your account</p>
                     <CInputGroup className="mb-3">
@@ -34,7 +87,10 @@ const Login = () => {
                           <CIcon name="cil-user" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput type="text" placeholder="Username" autoComplete="username" />
+                      <CInput className="form-control-warning" type="text" placeholder="Username" id="categoryInput" onChange={event => setTeacherUsername(event.target.value)} value={teacherUsername} autoComplete="username" required />
+                      <CInvalidFeedback className="help-block" >
+                        Please provide a valid username
+                      </CInvalidFeedback>
                     </CInputGroup>
                     <CInputGroup className="mb-4">
                       <CInputGroupPrepend>
@@ -42,11 +98,14 @@ const Login = () => {
                           <CIcon name="cil-lock-locked" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput type="password" placeholder="Password" autoComplete="current-password" />
+                      <CInput className="form-control-warning" type="password" id="categoryInput" onChange={event => setTeacherPassword(event.target.value)} value={teacherPassword} placeholder="Password" autoComplete="current-password" required />
+                      <CInvalidFeedback className="help-block" >
+                        Please provide a valid password
+                      </CInvalidFeedback>
                     </CInputGroup>
                     <CRow>
                       <CCol xs="6">
-                        <CButton color="primary" className="px-4">Login</CButton>
+                        <CButton color="primary" className="px-4" onClick={submitData} type="submit">Login</CButton>
                       </CCol>
                       <CCol xs="6" className="text-right">
                         <CButton color="link" className="px-0">Forgot password?</CButton>
