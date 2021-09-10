@@ -237,7 +237,7 @@ const ListCategory = () => {
               <CModalTitle>Delete Confirmation</CModalTitle>
             </CModalHeader>
             <CModalBody>
-              Are you sure you want to delete category name {selectedCategory.name} ?
+              Are you sure you want to delete category name {selectedCategory.categoryName} ?
             </CModalBody>
             <CModalFooter>
               <CButton color="danger"
