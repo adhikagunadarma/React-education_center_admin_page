@@ -96,7 +96,7 @@ const ListCourse = () => {
                         setLoadingModal(false)
                         if (data.statusCode === 0) {
                             resolve(true)
-                            setCategories(data.data)
+                            setCourses(data.data)
                         } else {
                             resolve(false)
                             setStatusColor('danger')
@@ -239,7 +239,7 @@ const ListCourse = () => {
                         show={deleteModal}
                         onClose={() => {
                             setDeleteModal(false)
-                            setSelectedCategory('')
+                            setSelectedCourse('')
                         }}
                     >
                         <CModalHeader closeButton>
