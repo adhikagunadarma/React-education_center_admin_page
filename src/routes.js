@@ -42,6 +42,12 @@ const User = React.lazy(() => import('./views/users/User'));
 const ListCategory = React.lazy(() => import('./views/pages/category/ListCategory'));
 const AddCategory = React.lazy(() => import('./views/pages/category/AddCategory'));
 const EditCategory = React.lazy(() => import('./views/pages/category/EditCategory'));
+
+
+const ListCourse = React.lazy(() => import('./views/pages/course/ListCourse'));
+// const AddCourse = React.lazy(() => import('./views/pages/course/AddCategory'));
+// const EditCourse = React.lazy(() => import('./views/pages/course/EditCategory'));
+
 const ListVideo = React.lazy(() => import('./views/pages/video/ListVideo'));
 // const AddVideo = React.lazy(() => import('./pages/category/AddVideo'));
 
@@ -91,6 +97,12 @@ const routes = [
   { path: '/list-category', exact: true, name: 'List Category', component: ListCategory },
   { path: '/add-category', exact: true, name: 'Add Category', component: AddCategory },
   { path: '/edit-category/:id', exact: true, name: 'Edit Category', component: EditCategory },
+
+
+  { path: '/list-course', exact: true, name: 'List Course', component: ListCourse },
+  // { path: '/add-course', exact: true, name: 'Add Course', component: AddCourse },
+  // { path: '/edit-course/:id', exact: true, name: 'Edit Course', component: EditCourse },
+
   { path: '/list-video', exact: true, name: 'List Video', component: ListVideo },
   // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
 ];
