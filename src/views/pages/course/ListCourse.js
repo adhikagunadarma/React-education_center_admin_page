@@ -34,7 +34,7 @@ const getBadge = status => {
         default: return 'primary'
     }
 }
-const fields = ['courseThumbnail', 'coruseName', 'courseTeacher', 'courseCategory', 'courseMembership', 'coursePublished', 'courseTotalBought', 'action']
+const fields = ['courseThumbnail', 'courseName', 'courseTeacher', 'courseCategory', 'courseMembership', 'coursePublished', 'courseTotalBought', 'action']
 
 
 const ListCourse = () => {
@@ -213,6 +213,30 @@ const ListCourse = () => {
                                                 </td>
                                             )
                                         },
+                                    'courseMembership':
+                                        (item) => (
+                                            <td>
+                                                <CBadge color={getBadge(item.membership)}>
+                                                    {item.status === true ? (
+                                                        'Member'
+                                                    ) : (
+                                                        'Non-Member'
+                                                    )}
+                                                </CBadge>
+                                            </td>
+                                        ),
+                                    'coursePublished':
+                                        (item) => (
+                                            <td>
+                                                <CBadge color={getBadge(item.membership)}>
+                                                    {item.status === true ? (
+                                                        'Published'
+                                                    ) : (
+                                                        'Not Published'
+                                                    )}
+                                                </CBadge>
+                                            </td>
+                                        ),
                                     'courseThumbnail':
                                         (item) => (
                                             <td>
