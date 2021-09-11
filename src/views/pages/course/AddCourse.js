@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import {
     CButton,
-    CCard,
+    CCard, 
     CCardBody,
     CCardFooter,
     CCardHeader,
@@ -30,14 +30,7 @@ const AddCourse = () => {
     const filelimitSize = 5242880;
     const history = useHistory();
     const [loadingModal, setLoadingModal] = React.useState(false)
-    const [course, setCourse] = React.useState({
-        courseName: '',
-        courseDescription: '',
-        courseThumbnailName: '',
-        courseThumbnail: ''
-
-
-    })
+    const [course, setCourse] = React.useState({})
 
     const [statusColor, setStatusColor] = React.useState('info')
     const [statusMessage, setStatusMessage] = React.useState('')
@@ -65,12 +58,12 @@ const AddCourse = () => {
     })()
 
     useEffect(() => {
-        if (statusMessage != '') {
+        if (statusMessage !== '') {
             addToast() // kalo abis ada perubahan status message / color, baru add tiast
             // setStatusMessage('')
             // setStatusColor('info')
         }
-    }, [statusColor, statusMessage]);
+    }, [course,statusColor, statusMessage]);
 
     function submitData() {
         console.log(course)
@@ -118,16 +111,17 @@ const AddCourse = () => {
     }
 
 
-    function getDocumentFromFile($event, type) {
+    async function getDocumentFromFile($event, type) {
         if ($event.target.files[0]) {
             var file = $event.target.files[0];
             var fileSize = file.size;
             var fileName = file.name;
             var filePath = $event.target.value
             if (fileSize < filelimitSize) {
-                fileToBase64(file).then((fileData) => {
+                let fileData = await fileToBase64(file)
                     switch (type) {
                         case 'thumbnail':
+                            
                             course.courseThumbnail = fileData
                             course.courseThumbnailName = fileName
 
@@ -143,9 +137,9 @@ const AddCourse = () => {
                             break;
                     }
                     setCourse(course)
+                    // the object is updated, but the ui is not rerender : thats the problem
                     console.log(course)
 
-                })
             } else {
                 this.publicParam.presentAlert("Warning", this.warningFileLimit)
             }
@@ -221,8 +215,48 @@ const AddCourse = () => {
                                             <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
                                                 getDocumentFromFile(event, 'thumbnail')
                                             }} accept="image/*" />
-                                            <CLabel className="custom-file-label" htmlFor="customFile" >
-                                                {course.courseThumbnailName !== '' ? (
+                                            <CLabel className="custom-file-label" htmlFor="customFile">
+                                                {course.courseThumbnailName !== undefined ? (
+                                                    course.courseThumbnailName
+                                                ) : (
+                                                    'Choose file'
+                                                )}
+
+                                            </CLabel>
+                                        </div>
+                                    </CCol>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="3">
+                                        <CLabel htmlFor="categoryInput">Course Trailer</CLabel>
+                                    </CCol>
+                                    <CCol xs="12" md="9">
+                                        <div className="custom-file">
+                                            <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
+                                                getDocumentFromFile(event, 'trailer')
+                                            }} accept="image/*" />
+                                            <CLabel className="custom-file-label" htmlFor="customFile">
+                                                {course.courseTrailerName !== undefined ? (
+                                                    course.courseTrailerName
+                                                ) : (
+                                                    'Choose file'
+                                                )}
+
+                                            </CLabel>
+                                        </div>
+                                    </CCol>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="3">
+                                        <CLabel htmlFor="categoryInput">Course Trailer Thumbnail</CLabel>
+                                    </CCol>
+                                    <CCol xs="12" md="9">
+                                        <div className="custom-file">
+                                            <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
+                                                getDocumentFromFile(event, 'thumbnail_trailer')
+                                            }} accept="image/*" />
+                                            <CLabel className="custom-file-label" htmlFor="customFile">
+                                                {course.courseThumbnailName !== undefined ? (
                                                     course.courseThumbnailName
                                                 ) : (
                                                     'Choose file'
