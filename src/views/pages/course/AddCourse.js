@@ -20,7 +20,8 @@ import {
     CToastHeader,
     CToastBody,
     CInvalidFeedback,
-    CSwitch
+    CSwitch,
+    CInputFile
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -212,7 +213,13 @@ const AddCourse = () => {
                                         <CLabel htmlFor="categoryInput">Course Thumbnail</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
+                                    {/* <CInputFile id="file-input" name="file-input" className="custom-file-input" id="customFile" onChange={(event) => {
+                                                getDocumentFromFile(event, 'thumbnail')
+                                            }} accept="image/*" /> */}
+
+
                                         <div className="custom-file">
+                                       
                                             <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
                                                 getDocumentFromFile(event, 'thumbnail')
                                             }} accept="image/*" />
@@ -269,6 +276,14 @@ const AddCourse = () => {
                                 </CFormGroup>
                                 <CFormGroup row>
                                     <CCol md="3">
+                                        <CLabel htmlFor="categoryInput">Category</CLabel>
+                                    </CCol>
+                                    <CCol xs="12" md="9">
+                                
+                                    </CCol>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="3">
                                         <CLabel htmlFor="categoryInput">Membership</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
@@ -304,6 +319,7 @@ const AddCourse = () => {
                     />         
                                     </CCol>
                                 </CFormGroup>
+                       
 
                             </CForm>
                         </CCardBody>
