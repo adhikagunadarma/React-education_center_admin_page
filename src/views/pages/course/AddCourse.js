@@ -20,6 +20,7 @@ import {
     CToastHeader,
     CToastBody,
     CInvalidFeedback,
+    CSwitch
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -264,6 +265,43 @@ const AddCourse = () => {
 
                                             </CLabel>
                                         </div>
+                                    </CCol>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="3">
+                                        <CLabel htmlFor="categoryInput">Membership</CLabel>
+                                    </CCol>
+                                    <CCol xs="12" md="9">
+                                    <CSwitch
+                      className="mr-1"
+                      color="info"
+                      checked="false"
+                      shape="pill"
+                      
+                      value={course.courseMembership}
+                      onClick={(event) => {
+                        course.courseMembership = event.target.checked
+                        setCourse(course)
+                    }}
+                    />         
+                                    </CCol>
+                                </CFormGroup>
+                                <CFormGroup row>
+                                    <CCol md="3">
+                                        <CLabel htmlFor="categoryInput">Published</CLabel>
+                                    </CCol>
+                                    <CCol xs="12" md="9">
+                                    <CSwitch
+                      className="mr-1"
+                      color="info"
+                      checked="false"
+                      shape="pill"
+                      value={course.coursePublished}
+                      onClick={(event) => {
+                        course.coursePublished =  event.target.checked
+                        setCourse(course)
+                    }}
+                    />         
                                     </CCol>
                                 </CFormGroup>
 
