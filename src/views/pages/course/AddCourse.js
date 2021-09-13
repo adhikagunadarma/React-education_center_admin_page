@@ -21,7 +21,11 @@ import {
     CToastBody,
     CInvalidFeedback,
     CSwitch,
-    CInputFile
+    CInputFile,
+    CModalHeader,
+    CModalTitle,
+    CListGroup,
+    CListGroupItem
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
@@ -32,7 +36,11 @@ const AddCourse = () => {
     const filelimitSize = 5242880;
     const history = useHistory();
     const [loadingModal, setLoadingModal] = React.useState(false)
+    
+    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
     const [course, setCourse] = React.useState({})
+    const [categories, setCategories] = React.useState([]) // all categories
+    const [courseCategory, setCourseCategory]  = React.useState([]) // selected category for the course only
 
     const [statusColor, setStatusColor] = React.useState('info')
     const [statusMessage, setStatusMessage] = React.useState('')
@@ -65,7 +73,39 @@ const AddCourse = () => {
             // setStatusMessage('')
             // setStatusColor('info')
         }
+        getCategories()
     }, [course,statusColor, statusMessage]);
+
+    function getCategories() {
+
+        setLoadingModal(true)
+        return new Promise((resolve) => {
+          const baseEndpoint = "http://localhost:8080"
+          const pathEndpoint = "/api/educen/categories"
+          const requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          };
+          fetch(baseEndpoint + pathEndpoint, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+              setTimeout((_) => {
+                setLoadingModal(false)
+                if (data.statusCode === 0) {
+                  resolve(true)
+                  setCategories(data.data)
+                } else {
+                  resolve(false)
+                  setStatusColor('danger')
+                  setStatusMessage(data.statusMessage)
+                }
+              }, 1000)
+    
+            });
+        })
+    
+    
+      }
 
     function submitData() {
         console.log(course)
@@ -110,6 +150,10 @@ const AddCourse = () => {
         // })
 
 
+    }
+
+    function addCategory(category){
+        console.log(category)
     }
 
 
@@ -279,7 +323,12 @@ const AddCourse = () => {
                                         <CLabel htmlFor="categoryInput">Category</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
-                                
+                                    <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
+                                            setShowCategoryModal(true)
+                                            console.log(categories)
+                                        }}>
+                                        <CIcon size="sm" name="cil-plus" className="float-right" />
+                                        <span className="mfs-2">Add Category &nbsp;</span></CButton>
                                     </CCol>
                                 </CFormGroup>
                                 <CFormGroup row>
@@ -290,10 +339,9 @@ const AddCourse = () => {
                                     <CSwitch
                       className="mr-1"
                       color="info"
-                      checked="false"
+                      checked={course.courseMembership}
                       shape="pill"
                       
-                      value={course.courseMembership}
                       onClick={(event) => {
                         course.courseMembership = event.target.checked
                         setCourse(course)
@@ -309,9 +357,8 @@ const AddCourse = () => {
                                     <CSwitch
                       className="mr-1"
                       color="info"
-                      checked="false"
+                      checked={course.coursePublished}
                       shape="pill"
-                      value={course.coursePublished}
                       onClick={(event) => {
                         course.coursePublished =  event.target.checked
                         setCourse(course)
@@ -333,6 +380,24 @@ const AddCourse = () => {
                         >
                             <CModalBody>
                                 Please wait a moment..
+                            </CModalBody>
+                        </CModal>
+                        <CModal
+                            show={showCategoryModal}
+                            onClose={setShowCategoryModal}
+                        >
+                            <CModalHeader>
+                                <CModalTitle>
+                                    Please choose a category
+                                </CModalTitle>
+                            </CModalHeader>
+                            <CModalBody>
+                            <CListGroup>
+                            {categories.map((category, indexDelivery) => (
+                                <CListGroupItem action key={category.id} onClick={() => { addCategory(category) }}>{category.categoryName}</CListGroupItem>
+                            ))}
+                            
+                            </CListGroup>
                             </CModalBody>
                         </CModal>
                     </CCard>
