@@ -111,46 +111,62 @@ const AddCourse = () => {
       }
 
     function submitData() {
-        console.log(course)
-        // if (course.courseName === '' || course.courseDescription === '') {
-        //     // setStatusColor("warning")
-        //     // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
-        //     setValidationError(true)
-        //     return
-        // }
-        // setLoadingModal(true)
-        // return new Promise((resolve) => {
-        //     const baseEndpoint = "http://localhost:8080"
-        //     const pathEndpoint = "/api/educen/category"
-        //     const requestOptions = {
-        //         method: 'POST',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({
-        //             courseName: course.courseName,
-        //             courseDescription: course.courseDescription,
-        //             courseThumbnail: course.courseThumbnail,
-        //             courseThumbnailName: course.courseThumbnailName
-        //         })
-        //     };
-        //     console.log(JSON.parse(requestOptions.body))
-        //     fetch(baseEndpoint + pathEndpoint, requestOptions)
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             setTimeout((_) => {
-        //                 setLoadingModal(false)
-        //                 if (data.statusCode === 0) {
-        //                     resolve(true)
-        //                     setStatusColor('success')
-        //                     history.push("/list-category");
-        //                 } else {
-        //                     resolve(false)
-        //                     setStatusColor('danger')
-        //                 }
-        //                 setStatusMessage(data.statusMessage)
-        //             }, 1000)
+        // console.log(course)
+        // console.log(courseCategory)
+        if (course.courseName === '' || course.courseDescription === '') {
+            // setStatusColor("warning")
+            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+            setValidationError(true)
+            return
+        }
+        setLoadingModal(true)
+        return new Promise((resolve) => {
+            const baseEndpoint = "http://localhost:8080"
+            const pathEndpoint = "/api/educen/course"
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
 
-        //         });
-        // })
+                    courseName: course.courseName,
+                    courseDescription: course.courseDescription,
+                    courseThumbnail: course.courseThumbnail,
+                    courseThumbnailName: course.courseThumbnailName,
+                    
+                    courseTrailerFile: course.courseTrailerFile,
+                    courseTrailerName: course.courseTrailerName,
+                    
+                    courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
+                    courseTrailerThumbnailName: course.courseTrailerThumbnailName,
+                    
+                    courseMembership: course.courseMembership,
+                    coursePublished: course.coursePublished,
+                    courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
+
+                    courseCategory : courseCategory.map((category) => {
+                        return category.id
+                    }),
+                })
+            };
+            console.log(JSON.parse(requestOptions.body))
+            fetch(baseEndpoint + pathEndpoint, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout((_) => {
+                        setLoadingModal(false)
+                        if (data.statusCode === 0) {
+                            resolve(true)
+                            setStatusColor('success')
+                            history.push("/list-course");
+                        } else {
+                            resolve(false)
+                            setStatusColor('danger')
+                        }
+                        setStatusMessage(data.statusMessage)
+                    }, 1000)
+
+                });
+        })
 
 
     }
