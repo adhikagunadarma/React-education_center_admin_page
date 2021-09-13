@@ -40,7 +40,7 @@ const AddCourse = () => {
     const [showCategoryModal, setShowCategoryModal] = React.useState(false)
     const [course, setCourse] = React.useState({})
     const [categories, setCategories] = React.useState([]) // all categories
-    const [courseCategory, setCourseCategory]  = React.useState([]) // selected category for the course only
+    const [courseCategory, setCourseCategory] = React.useState([]) // all categories
 
     const [statusColor, setStatusColor] = React.useState('info')
     const [statusMessage, setStatusMessage] = React.useState('')
@@ -65,7 +65,8 @@ const AddCourse = () => {
             toasters[toast.position].push(toast)
             return toasters
         }, {})
-    })()
+    })
+
 
     useEffect(() => {
         if (statusMessage !== '') {
@@ -73,7 +74,9 @@ const AddCourse = () => {
             // setStatusMessage('')
             // setStatusColor('info')
         }
-        getCategories()
+        if (categories.length === 0 ){//first time only
+            getCategories()
+        }
     }, [course,statusColor, statusMessage]);
 
     function getCategories() {
@@ -153,7 +156,36 @@ const AddCourse = () => {
     }
 
     function addCategory(category){
-        console.log(category)
+        setShowCategoryModal(false)
+        if (courseCategory.includes(category)){
+            console.log(courseCategory.includes(category))
+            setStatusColor('danger')
+            setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
+        }else{
+            
+            courseCategory.push(category)
+            setCourseCategory(courseCategory)
+            setStatusColor('success')
+            setStatusColor(`Success adding category ${category.categoryName}`)
+        }
+
+        // nanti aja pas submit
+        // course.courseCategory = courseCategory
+        // setCourse(course)
+        
+    }
+
+    function deleteCourseCategory(category){
+        
+        const index = courseCategory.indexOf(category);
+        if (index > -1) {
+            courseCategory.splice(index, 1);
+        }
+        console.log(courseCategory)
+        setCourseCategory(courseCategory)
+        
+        setStatusColor('success')
+        setStatusColor(`Success delete category ${category.categoryName}`)
     }
 
 
@@ -184,7 +216,9 @@ const AddCourse = () => {
                     }
                     setCourse(course)
                     // the object is updated, but the ui is not rerender : thats the problem
-                    console.log(course)
+                    
+                    setStatusColor('success')
+                    setStatusColor(`Success add file`)
 
             } else {
                 this.publicParam.presentAlert("Warning", this.warningFileLimit)
@@ -308,8 +342,8 @@ const AddCourse = () => {
                                                 getDocumentFromFile(event, 'thumbnail_trailer')
                                             }} accept="image/*" />
                                             <CLabel className="custom-file-label" htmlFor="customFile">
-                                                {course.courseThumbnailName !== undefined ? (
-                                                    course.courseThumbnailName
+                                                {course.courseTrailerThumbnailName !== undefined ? (
+                                                    course.courseTrailerThumbnailName
                                                 ) : (
                                                     'Choose file'
                                                 )}
@@ -323,6 +357,13 @@ const AddCourse = () => {
                                         <CLabel htmlFor="categoryInput">Category</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
+                                    {courseCategory.map((category) => (
+                                         <CButton color="primary" size="sm" className="btn-brand mr-1 mb-1" key={category.id}>
+                                        <CIcon size="sm" name="cil-X" className="float-right" onClick={() => {
+                                            deleteCourseCategory(category)
+                                        }}/>
+                                        <span className="mfs-2">{category.categoryName} &nbsp;</span></CButton>
+                                    ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
                                             setShowCategoryModal(true)
                                             console.log(categories)
