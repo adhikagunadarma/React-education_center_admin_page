@@ -33,7 +33,8 @@ import Toaster from 'src/views/notifications/toaster/Toaster';
 
 const AddCourse = () => {
 
-    const filelimitSize = 5242880;
+    const filelimitSize = 50 * 1024 * 1024;
+    const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
     const history = useHistory();
     const [loadingModal, setLoadingModal] = React.useState(false)
     
@@ -237,7 +238,9 @@ const AddCourse = () => {
                     setStatusColor(`Success add file`)
 
             } else {
-                this.publicParam.presentAlert("Warning", this.warningFileLimit)
+                
+                    setStatusColor('danger')
+                    setStatusMessage(warningFileLimit)
             }
         }
     }

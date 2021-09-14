@@ -27,7 +27,8 @@ import Toaster from 'src/views/notifications/toaster/Toaster';
 
 const AddCategory = () => {
 
-  const filelimitSize = 5242880;
+  const filelimitSize = 50 * 1024 * 1024;
+  const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
   const history = useHistory();
   const [loadingModal, setLoadingModal] = React.useState(false)
   const [categoryName, setCategoryName] = React.useState('')
@@ -126,7 +127,8 @@ const AddCategory = () => {
 
         })
       } else {
-        this.publicParam.presentAlert("Warning", this.warningFileLimit)
+        setStatusColor('danger')
+        setStatusMessage(warningFileLimit)
       }
     }
   }
