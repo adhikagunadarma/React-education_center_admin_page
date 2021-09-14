@@ -46,7 +46,7 @@ const EditCategory = React.lazy(() => import('./views/pages/category/EditCategor
 
 const ListCourse = React.lazy(() => import('./views/pages/course/ListCourse'));
 const AddCourse = React.lazy(() => import('./views/pages/course/AddCourse'));
-// const EditCourse = React.lazy(() => import('./views/pages/course/EditCategory'));
+const EditCourse = React.lazy(() => import('./views/pages/course/EditCourse'));
 
 const ListVideo = React.lazy(() => import('./views/pages/video/ListVideo'));
 // const AddVideo = React.lazy(() => import('./pages/category/AddVideo'));
@@ -101,7 +101,7 @@ const routes = [
 
   { path: '/list-course', exact: true, name: 'List Course', component: ListCourse },
   { path: '/add-course', exact: true, name: 'Add Course', component: AddCourse },
-  // { path: '/edit-course/:id', exact: true, name: 'Edit Course', component: EditCourse },
+  { path: '/edit-course/:id', exact: true, name: 'Edit Course', component: EditCourse },
 
   { path: '/list-video', exact: true, name: 'List Video', component: ListVideo },
   // { path: '/add-video', exact: true,  name: 'List Video', component: AddVideo },
