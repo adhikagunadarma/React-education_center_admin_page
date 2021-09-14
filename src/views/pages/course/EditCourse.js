@@ -226,8 +226,7 @@ const EditCourse = () => {
             setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
         }else{
             
-            courseCategory.push(category)
-            setCourseCategory(courseCategory)
+            setCourseCategory({...courseCategory})
             setStatusColor('success')
             setStatusColor(`Success adding category ${category.categoryName}`)
         }
@@ -322,8 +321,7 @@ const EditCourse = () => {
 
                                     <CCol xs="12" md="9">
                                         <CInput className="form-control-warning " id="categoryInput" value={course.courseName} name="text-input" placeholder="Nama Kategori" onChange={(event) => {
-                                            course.courseName = event.target.value
-                                            setCourse(course)
+                                            setCourse({...course, courseName : event.target.value})
                                         }} required />
                                         <CInvalidFeedback className="help-block" >
                                             Please provide a valid course name
@@ -341,8 +339,7 @@ const EditCourse = () => {
                                             rows="9"
                                             placeholder="Deskripsi kategori..."
                                             onChange={(event) => {
-                                                course.courseDescription = event.target.value
-                                                setCourse(course)
+                                                setCourse({...course, courseDescription : event.target.value})
                                             }}
                                             required
                                         />
@@ -431,7 +428,6 @@ const EditCourse = () => {
                                     ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
                                             setShowCategoryModal(true)
-                                            console.log(categories)
                                         }}>
                                         <CIcon size="sm" name="cil-plus" className="float-right" />
                                         <span className="mfs-2">Add Category &nbsp;</span></CButton>
@@ -449,8 +445,8 @@ const EditCourse = () => {
                       shape="pill"
                       
                       onClick={(event) => {
-                        course.courseMembership = event.target.checked
-                        setCourse(course)
+
+                        setCourse({...course, courseMembership : event.target.checked})
                     }}
                     />         
                                     </CCol>
@@ -466,8 +462,8 @@ const EditCourse = () => {
                       checked={course.coursePublished}
                       shape="pill"
                       onClick={(event) => {
-                        course.coursePublished =  event.target.checked
-                        setCourse(course)
+                        
+                        setCourse({...course, coursePublished : event.target.checked})
                     }}
                     />         
                                     </CCol>
