@@ -72,7 +72,10 @@ const ListCourse = () => {
     })()
 
     useEffect(() => {
-        getData()
+        if (courses.length <= 0 ){
+
+            getData()
+        }
         if (statusMessage != '') {
             addToast() // kalo abis ada perubahan status message / color, baru add tiast
         }
@@ -96,6 +99,16 @@ const ListCourse = () => {
                         setLoadingModal(false)
                         if (data.statusCode === 0) {
                             resolve(true)
+                            data.data.forEach(element => {
+                                
+                                let courseCategory = []
+                                element.courseCategory.map (category => {
+                                        console.log(category)
+                                        courseCategory.push(category.categoryName)
+                                  
+                                })
+                                element.courseCategory = courseCategory
+                            });
                             setCourses(data.data)
                         } else {
                             resolve(false)
