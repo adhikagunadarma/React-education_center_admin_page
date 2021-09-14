@@ -28,10 +28,13 @@ import {
     CListGroupItem
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { useHistory } from "react-router-dom";
+import { useHistory,useParams } from "react-router-dom";
 import Toaster from 'src/views/notifications/toaster/Toaster';
 
 const EditCourse = () => {
+
+    
+  const { id } = useParams();
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
@@ -39,6 +42,7 @@ const EditCourse = () => {
     const [loadingModal, setLoadingModal] = React.useState(false)
     
     const [showCategoryModal, setShowCategoryModal] = React.useState(false)
+    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
     const [course, setCourse] = React.useState({})
     const [categories, setCategories] = React.useState([]) // all categories
     const [courseCategory, setCourseCategory] = React.useState([]) // all categories
@@ -75,10 +79,51 @@ const EditCourse = () => {
             // setStatusMessage('')
             // setStatusColor('info')
         }
-        if (categories.length === 0 ){//first time only
+
+        if (firstTimeLoad){
+
             getCategories()
+            getData()
+            setFirstTimeLoad(false)
         }
+
     }, [course,statusColor, statusMessage]);
+
+
+    function getData() {
+
+        setLoadingModal(true)
+        return new Promise((resolve) => {
+          const baseEndpoint = "http://localhost:8080"
+          const pathEndpoint = "/api/educen/course/" + id
+          const requestOptions = {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          };
+          fetch(baseEndpoint + pathEndpoint, requestOptions)
+            .then(response => response.json())
+            .then(data => {
+              setTimeout((_) => {
+                setLoadingModal(false)
+                if (data.statusCode === 0) {
+                  resolve(true)
+                  
+                  setCourse(data.data)
+                  setCourseCategory(data.data.courseCategory)
+                  setStatusColor('success')
+
+                } else {
+                  resolve(false)
+                  // setStatusColor('danger')
+                }
+                // setStatusMessage(data.statusMessage)
+              }, 1000)
+    
+            });
+        })
+    
+    
+      }
 
     function getCategories() {
 
@@ -114,65 +159,66 @@ const EditCourse = () => {
     function submitData() {
         // console.log(course)
         // console.log(courseCategory)
-        if (course.courseName === '' || course.courseDescription === '') {
-            // setStatusColor("warning")
-            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
-            setValidationError(true)
-            return
-        }
-        setLoadingModal(true)
-        return new Promise((resolve) => {
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/course"
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+        // if (course.courseName === '' || course.courseDescription === '') {
+        //     // setStatusColor("warning")
+        //     // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+        //     setValidationError(true)
+        //     return
+        // }
+        // setLoadingModal(true)
+        // return new Promise((resolve) => {
+        //     const baseEndpoint = "http://localhost:8080"
+        //     const pathEndpoint = "/api/educen/course/" + id
+        //     const requestOptions = {
+        //         method: 'PUT',
+        //         headers: { 'Content-Type': 'application/json' },
+        //         body: JSON.stringify({
 
-                    courseName: course.courseName,
-                    courseDescription: course.courseDescription,
-                    courseThumbnail: course.courseThumbnail,
-                    courseThumbnailName: course.courseThumbnailName,
+        //             courseName: course.courseName,
+        //             courseDescription: course.courseDescription,
+        //             courseThumbnail: course.courseThumbnail,
+        //             courseThumbnailName: course.courseThumbnailName,
                     
-                    courseTrailerFile: course.courseTrailerFile,
-                    courseTrailerName: course.courseTrailerName,
+        //             courseTrailerFile: course.courseTrailerFile,
+        //             courseTrailerName: course.courseTrailerName,
                     
-                    courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
-                    courseTrailerThumbnailName: course.courseTrailerThumbnailName,
+        //             courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
+        //             courseTrailerThumbnailName: course.courseTrailerThumbnailName,
                     
-                    courseMembership: course.courseMembership,
-                    coursePublished: course.coursePublished,
-                    courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
+        //             courseMembership: course.courseMembership,
+        //             coursePublished: course.coursePublished,
+        //             courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
 
-                    courseCategory : courseCategory.map((category) => {
-                        return category.id
-                    }),
-                })
-            };
-            console.log(JSON.parse(requestOptions.body))
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                            history.push("/list-course");
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
+        //             courseCategory : courseCategory.map((category) => {
+        //                 return category.id
+        //             }),
+        //         })
+        //     };
+        //     // console.log(JSON.parse(requestOptions.body))
+        //     fetch(baseEndpoint + pathEndpoint, requestOptions)
+        //         .then(response => response.json())
+        //         .then(data => {
+        //             setTimeout((_) => {
+        //                 setLoadingModal(false)
+        //                 if (data.statusCode === 0) {
+        //                     resolve(true)
+        //                     setStatusColor('success')
+        //                     history.push("/list-course");
+        //                 } else {
+        //                     resolve(false)
+        //                     setStatusColor('danger')
+        //                 }
+        //                 setStatusMessage(data.statusMessage)
+        //             }, 1000)
 
-                });
-        })
+        //         });
+        // })
 
 
     }
 
     function addCategory(category){
+        console.log(courseCategory)
         setShowCategoryModal(false)
         if (courseCategory.includes(category)){
             console.log(courseCategory.includes(category))
