@@ -216,26 +216,17 @@ const AddCourse = () => {
                 let fileData = await fileToBase64(file)
                     switch (type) {
                         case 'thumbnail':
-                            
-                            course.courseThumbnail = fileData
-                            course.courseThumbnailName = fileName
-
+                             setCourse({...course, courseThumbnail : fileData, courseThumbnailName : fileName})
                             break;
                         case 'trailer':
-                            course.courseTrailerFile = fileData
-                            course.courseTrailerName = fileName
+                            
+                            setCourse({...course, courseTrailerFile : fileData, courseTrailerName : fileName})
                             break;
                         case 'thumbnail_trailer':
 
-                            course.courseTrailerThumbnailFile = fileData
-                            course.courseTrailerThumbnailName = fileName
+                            setCourse({...course, courseTrailerThumbnailFile : fileData, courseTrailerThumbnailName : fileName})
                             break;
                     }
-                    setCourse(course)
-                    // the object is updated, but the ui is not rerender : thats the problem
-                    
-                    setStatusColor('success')
-                    setStatusColor(`Success add file`)
 
             } else {
                 
@@ -276,9 +267,8 @@ const AddCourse = () => {
 
                                     <CCol xs="12" md="9">
                                         <CInput className="form-control-warning " id="categoryInput" value={course.courseName} name="text-input" placeholder="Nama Kategori" onChange={(event) => {
-                                            course.courseName = event.target.value
-                                            setCourse(course)
-                                        }} required />
+                                                setCourse({...course, courseName : event.target.value})
+                                            }} required />
                                         <CInvalidFeedback className="help-block" >
                                             Please provide a valid course name
                                         </CInvalidFeedback>
@@ -295,8 +285,7 @@ const AddCourse = () => {
                                             rows="9"
                                             placeholder="Deskripsi kategori..."
                                             onChange={(event) => {
-                                                course.courseDescription = event.target.value
-                                                setCourse(course)
+                                                setCourse({...course, courseDescription : event.target.value})
                                             }}
                                             required
                                         />
@@ -310,9 +299,7 @@ const AddCourse = () => {
                                         <CLabel htmlFor="categoryInput">Course Thumbnail</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
-                                    {/* <CInputFile id="file-input" name="file-input" className="custom-file-input" id="customFile" onChange={(event) => {
-                                                getDocumentFromFile(event, 'thumbnail')
-                                            }} accept="image/*" /> */}
+                                  
 
 
                                         <div className="custom-file">
@@ -403,8 +390,8 @@ const AddCourse = () => {
                       shape="pill"
                       
                       onClick={(event) => {
-                        course.courseMembership = event.target.checked
-                        setCourse(course)
+                        
+                        setCourse({...course, courseMembership : event.target.checked})
                     }}
                     />         
                                     </CCol>
@@ -420,8 +407,8 @@ const AddCourse = () => {
                       checked={course.coursePublished}
                       shape="pill"
                       onClick={(event) => {
-                        course.coursePublished =  event.target.checked
-                        setCourse(course)
+                        
+                        setCourse({...course, coursePublished : event.target.checked})
                     }}
                     />         
                                     </CCol>
