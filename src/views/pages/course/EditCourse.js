@@ -157,83 +157,81 @@ const EditCourse = () => {
       }
 
     function submitData() {
-        // console.log(course)
-        // console.log(courseCategory)
-        // if (course.courseName === '' || course.courseDescription === '') {
-        //     // setStatusColor("warning")
-        //     // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
-        //     setValidationError(true)
-        //     return
-        // }
-        // setLoadingModal(true)
-        // return new Promise((resolve) => {
-        //     const baseEndpoint = "http://localhost:8080"
-        //     const pathEndpoint = "/api/educen/course/" + id
-        //     const requestOptions = {
-        //         method: 'PUT',
-        //         headers: { 'Content-Type': 'application/json' },
-        //         body: JSON.stringify({
+        if (course.courseName === '' || course.courseDescription === '') {
+            // setStatusColor("warning")
+            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+            setValidationError(true)
+            return
+        }
+        setLoadingModal(true)
+        return new Promise((resolve) => {
+            const baseEndpoint = "http://localhost:8080"
+            const pathEndpoint = "/api/educen/course/" + id
+            const requestOptions = {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
 
-        //             courseName: course.courseName,
-        //             courseDescription: course.courseDescription,
-        //             courseThumbnail: course.courseThumbnail,
-        //             courseThumbnailName: course.courseThumbnailName,
+                    courseName: course.courseName,
+                    courseDescription: course.courseDescription,
+                    courseThumbnail: course.courseThumbnail,
+                    courseThumbnailName: course.courseThumbnailName,
                     
-        //             courseTrailerFile: course.courseTrailerFile,
-        //             courseTrailerName: course.courseTrailerName,
+                    courseTrailerFile: course.courseTrailerFile,
+                    courseTrailerName: course.courseTrailerName,
                     
-        //             courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
-        //             courseTrailerThumbnailName: course.courseTrailerThumbnailName,
+                    courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
+                    courseTrailerThumbnailName: course.courseTrailerThumbnailName,
                     
-        //             courseMembership: course.courseMembership,
-        //             coursePublished: course.coursePublished,
-        //             courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
+                    courseMembership: course.courseMembership,
+                    coursePublished: course.coursePublished,
+                    courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
 
-        //             courseCategory : courseCategory.map((category) => {
-        //                 return category.id
-        //             }),
-        //         })
-        //     };
-        //     // console.log(JSON.parse(requestOptions.body))
-        //     fetch(baseEndpoint + pathEndpoint, requestOptions)
-        //         .then(response => response.json())
-        //         .then(data => {
-        //             setTimeout((_) => {
-        //                 setLoadingModal(false)
-        //                 if (data.statusCode === 0) {
-        //                     resolve(true)
-        //                     setStatusColor('success')
-        //                     history.push("/list-course");
-        //                 } else {
-        //                     resolve(false)
-        //                     setStatusColor('danger')
-        //                 }
-        //                 setStatusMessage(data.statusMessage)
-        //             }, 1000)
+                    courseCategory : courseCategory.map((category) => {
+                        return category.id
+                    }),
+                })
+            };
+            // console.log(JSON.parse(requestOptions.body))
+            fetch(baseEndpoint + pathEndpoint, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout((_) => {
+                        setLoadingModal(false)
+                        if (data.statusCode === 0) {
+                            resolve(true)
+                            setStatusColor('success')
+                            history.push("/list-course");
+                        } else {
+                            resolve(false)
+                            setStatusColor('danger')
+                        }
+                        setStatusMessage(data.statusMessage)
+                    }, 1000)
 
-        //         });
-        // })
+                });
+        })
 
 
     }
 
     function addCategory(category){
-        console.log(courseCategory)
+        let checkExist = false
         setShowCategoryModal(false)
-        if (courseCategory.includes(category)){
-            console.log(courseCategory.includes(category))
+        courseCategory.forEach((element) => {
+            if (element._id === category.id){
+                checkExist = true
+            }
+        })
+        if (checkExist){
             setStatusColor('danger')
             setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
         }else{
-            
-            setCourseCategory({...courseCategory})
+            courseCategory.push(category)
+            setCourseCategory(courseCategory)
             setStatusColor('success')
             setStatusColor(`Success adding category ${category.categoryName}`)
         }
-
-        // nanti aja pas submit
-        // course.courseCategory = courseCategory
-        // setCourse(course)
         
     }
 
@@ -427,6 +425,7 @@ const EditCourse = () => {
                                         <span className="mfs-2">{category.categoryName} &nbsp;</span></CButton>
                                     ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
+                                        console.log(courseCategory)
                                             setShowCategoryModal(true)
                                         }}>
                                         <CIcon size="sm" name="cil-plus" className="float-right" />
