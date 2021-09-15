@@ -34,7 +34,7 @@ const getBadge = status => {
         default: return 'primary'
     }
 }
-const fields = ['courseThumbnail', 'courseName', 'courseTeacher', 'courseCategory', 'courseMembership', 'coursePublished', 'courseTotalBought', 'action']
+const fields = ['courseThumbnail', 'courseName', 'courseCategory', 'courseMembership', 'coursePublished', 'courseTotalBought', 'action']
 
 
 const ListCourse = () => {
@@ -84,8 +84,10 @@ const ListCourse = () => {
 
         setLoadingModal(true)
         return new Promise((resolve) => {
+            //default get listcourse will fetched by teacher id because its their login info
+            const idTeacher = "6137021a86140b3a7043bbba"// later on will changed by login teacher info
             const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/courses"
+            const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
             const requestOptions = {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
