@@ -72,10 +72,8 @@ const ListCourse = () => {
     })()
 
     useEffect(() => {
-        if (courses.length <= 0 ){
-
-            getData()
-        }
+        
+        getData()
         if (statusMessage != '') {
             addToast() // kalo abis ada perubahan status message / color, baru add tiast
         }
