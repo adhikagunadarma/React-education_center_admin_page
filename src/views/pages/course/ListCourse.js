@@ -226,8 +226,9 @@ const ListCourse = () => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-3">
-
-                                                    <CButton
+                                                    {
+                                                        item.coursePublished === false ?
+                                                        <CButton
                                                         color="warning"
                                                         variant="outline"
                                                         shape="square"
@@ -236,8 +237,11 @@ const ListCourse = () => {
                                                         onClick={() => { goToEditCourse(item, index) }}
                                                     >
                                                         Update
-                                                    </CButton>
+                                                    </CButton> : 
+                                                    null
 
+                                                    }
+                                              
 
                                                     <CButton
                                                         color="danger"
