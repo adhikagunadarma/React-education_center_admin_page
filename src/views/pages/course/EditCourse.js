@@ -157,6 +157,7 @@ const EditCourse = () => {
       }
 
     function submitData() {
+        console.log(courseCategory)
         if (course.courseName === '' || course.courseDescription === '') {
             // setStatusColor("warning")
             // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
@@ -188,11 +189,15 @@ const EditCourse = () => {
                     courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
 
                     courseCategory : courseCategory.map((category) => {
-                        return category.id
+                        if (category.id){
+                            return category.id
+                        }else{
+                            return category._id
+                        }
                     }),
                 })
             };
-            // console.log(JSON.parse(requestOptions.body))
+            console.log(JSON.parse(requestOptions.body))
             fetch(baseEndpoint + pathEndpoint, requestOptions)
                 .then(response => response.json())
                 .then(data => {
@@ -219,7 +224,7 @@ const EditCourse = () => {
         let checkExist = false
         setShowCategoryModal(false)
         courseCategory.forEach((element) => {
-            if (element._id === category.id){
+            if (element._id === category.id || element.id === category.id){
                 checkExist = true
             }
         })
