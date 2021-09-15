@@ -53,7 +53,7 @@ const ListCourse = () => {
     const [statusMessage, setStatusMessage] = React.useState('')
 
     const [selectedCourse, setSelectedCourse] = React.useState('')
-    const [deleteModal, setDeleteModal] = React.useState(false)
+    const [verificationModal, setVerificationModal] = React.useState(null)
 
     const [toasts, setToasts] = React.useState([])
 
@@ -126,22 +126,25 @@ const ListCourse = () => {
         history.push("/edit-course/" + data.id);
     }
 
-    function deleteData(data, index) {
+    function showVerificationModal(data, index, type) {
         setSelectedCourse(data)
-        setDeleteModal(true)
+        setVerificationModal(type)
     }
 
-    function confirmDelete() {
-        setDeleteModal(false)
+    function confirmVerification(type) {
+        setVerificationModal(null)
         setLoadingModal(true)
         return new Promise((resolve) => {
+            
             const baseEndpoint = "http://localhost:8080"
             const pathEndpoint = "/api/educen/course/" + selectedCourse.id
-            const requestOptions = {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' },
-            };
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
+            if (type==='Delete'){
+                const requestOptions = {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                };
+              
+                fetch(baseEndpoint + pathEndpoint, requestOptions)
                 .then(response => response.json())
                 .then(data => {
                     setTimeout((_) => {
@@ -158,6 +161,35 @@ const ListCourse = () => {
                     }, 1000)
 
                 });
+            }
+            if (type==='Publish'){
+                const requestOptions = {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        coursePublished: true,
+                    })
+                };
+              
+                fetch(baseEndpoint + pathEndpoint, requestOptions)
+                .then(response => response.json())
+                .then(data => {
+                    setTimeout((_) => {
+                        setLoadingModal(false)
+                        if (data.statusCode === 0) {
+                            resolve(true)
+                            setStatusColor('success')
+                        } else {
+                            resolve(false)
+                            setStatusColor('danger')
+                        }
+
+                        setStatusMessage(data.statusMessage)
+                    }, 1000)
+
+                });
+            }
+     
         })
 
     }
@@ -194,7 +226,6 @@ const ListCourse = () => {
                                         (item, index) => {
                                             return (
                                                 <td className="py-3">
-                                                    {/* <CLink to="/add-category/"> */}
 
                                                     <CButton
                                                         color="warning"
@@ -207,7 +238,6 @@ const ListCourse = () => {
                                                         Update
                                                     </CButton>
 
-                                                    {/* </CLink> */}
 
                                                     <CButton
                                                         color="danger"
@@ -215,10 +245,26 @@ const ListCourse = () => {
                                                         shape="square"
                                                         size="sm"
                                                         className="mr-1 mb-1"
-                                                        onClick={() => { deleteData(item, index) }}
+                                                        onClick={() => { showVerificationModal(item, index, 'Delete') }}
                                                     >
                                                         Delete
                                                     </CButton>
+
+                                                {
+                                                    item.coursePublished === false ?
+                                                    <CButton
+                                                    color="info"
+                                                    variant="outline"
+                                                    shape="square"
+                                                    size="sm"
+                                                    className="mr-1 mb-1"
+                                                    onClick={() => { showVerificationModal(item, index, 'Publish') }}
+                                                >
+                                                    Publish
+                                                </CButton> :
+                                                    null
+                                                }
+                                                  
                                                 </td>
                                             )
                                         },
@@ -269,26 +315,28 @@ const ListCourse = () => {
                         </CModalBody>
                     </CModal>
                     <CModal
-                        show={deleteModal}
+                        show={verificationModal != null}
                         onClose={() => {
-                            setDeleteModal(false)
+                            setVerificationModal(null)
                             setSelectedCourse('')
                         }}
                     >
                         <CModalHeader closeButton>
-                            <CModalTitle>Delete Confirmation</CModalTitle>
+                            <CModalTitle>{verificationModal} Confirmation</CModalTitle>
                         </CModalHeader>
                         <CModalBody>
-                            Are you sure you want to delete course name {selectedCourse.courseName} ?
+                            Are you sure you want to {verificationModal} course name {selectedCourse.courseName} ?
                         </CModalBody>
                         <CModalFooter>
                             <CButton color="danger"
-                                onClick={confirmDelete}
-                            >Delete</CButton>
+                                onClick={() => {
+                                    confirmVerification(verificationModal)
+                                }}
+                            >{verificationModal}</CButton>
                             <CButton
                                 color="secondary"
                                 onClick={() => {
-                                    setDeleteModal(false)
+                                    setVerificationModal(null)
                                     setSelectedCourse('')
                                 }}
                             >Cancel</CButton>
