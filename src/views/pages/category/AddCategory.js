@@ -90,7 +90,6 @@ const AddCategory = () => {
           categoryThumbnailName: categoryThumbnailName
         })
       };
-      console.log(JSON.parse(requestOptions.body))
       fetch(baseEndpoint + pathEndpoint, requestOptions)
         .then(response => response.json())
         .then(data => {

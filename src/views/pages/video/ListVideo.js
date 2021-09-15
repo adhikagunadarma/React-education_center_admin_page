@@ -111,13 +111,10 @@ function getData() {
 }
 
 function goToEditVideo(data,index){
-  // console.log(data.id)
   history.push("/edit-videos/"+ data.id);
 }
 
 function deleteData(data,index){
-  // console.log(index)
-  console.log(data)
   setSelectedVideo(data)
   setDeleteModal(true)
 }

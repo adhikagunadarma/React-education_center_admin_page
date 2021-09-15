@@ -102,13 +102,10 @@ const ListCategory = () => {
   }
 
   function goToEditCategory(data, index) {
-    // console.log(data.id)
     history.push("/edit-category/" + data.id);
   }
 
   function deleteData(data, index) {
-    // console.log(index)
-    console.log(data)
     setSelectedCategory(data)
     setDeleteModal(true)
   }

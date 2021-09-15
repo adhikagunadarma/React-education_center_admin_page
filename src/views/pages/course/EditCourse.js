@@ -157,7 +157,6 @@ const EditCourse = () => {
       }
 
     function submitData() {
-        console.log(courseCategory)
         if (course.courseName === '' || course.courseDescription === '') {
             // setStatusColor("warning")
             // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
@@ -197,7 +196,6 @@ const EditCourse = () => {
                     }),
                 })
             };
-            console.log(JSON.parse(requestOptions.body))
             fetch(baseEndpoint + pathEndpoint, requestOptions)
                 .then(response => response.json())
                 .then(data => {
@@ -246,7 +244,6 @@ const EditCourse = () => {
         if (index > -1) {
             courseCategory.splice(index, 1);
         }
-        console.log(courseCategory)
         setCourseCategory(courseCategory)
         
         setStatusColor('success')
@@ -430,7 +427,7 @@ const EditCourse = () => {
                                         <span className="mfs-2">{category.categoryName} &nbsp;</span></CButton>
                                     ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
-                                        console.log(courseCategory)
+                                   
                                             setShowCategoryModal(true)
                                         }}>
                                         <CIcon size="sm" name="cil-plus" className="float-right" />

@@ -112,8 +112,6 @@ const AddCourse = () => {
       }
 
     function submitData() {
-        // console.log(course)
-        // console.log(courseCategory)
         if (course.courseName === '' || course.courseDescription === '') {
             // setStatusColor("warning")
             // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
@@ -149,7 +147,6 @@ const AddCourse = () => {
                     }),
                 })
             };
-            console.log(JSON.parse(requestOptions.body))
             fetch(baseEndpoint + pathEndpoint, requestOptions)
                 .then(response => response.json())
                 .then(data => {
@@ -175,7 +172,6 @@ const AddCourse = () => {
     function addCategory(category){
         setShowCategoryModal(false)
         if (courseCategory.includes(category)){
-            console.log(courseCategory.includes(category))
             setStatusColor('danger')
             setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
         }else{
@@ -198,7 +194,6 @@ const AddCourse = () => {
         if (index > -1) {
             courseCategory.splice(index, 1);
         }
-        console.log(courseCategory)
         setCourseCategory(courseCategory)
         
         setStatusColor('success')
@@ -372,7 +367,6 @@ const AddCourse = () => {
                                     ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
                                             setShowCategoryModal(true)
-                                            console.log(categories)
                                         }}>
                                         <CIcon size="sm" name="cil-plus" className="float-right" />
                                         <span className="mfs-2">Add Category &nbsp;</span></CButton>

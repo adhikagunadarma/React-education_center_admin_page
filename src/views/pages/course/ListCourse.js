@@ -103,7 +103,6 @@ const ListCourse = () => {
                                 
                                 let courseCategory = []
                                 element.courseCategory.map (category => {
-                                        console.log(category)
                                         courseCategory.push(category.categoryName)
                                   
                                 })
@@ -124,13 +123,10 @@ const ListCourse = () => {
     }
 
     function goToEditCourse(data, index) {
-        // console.log(data.id)
         history.push("/edit-course/" + data.id);
     }
 
     function deleteData(data, index) {
-        // console.log(index)
-        console.log(data)
         setSelectedCourse(data)
         setDeleteModal(true)
     }
