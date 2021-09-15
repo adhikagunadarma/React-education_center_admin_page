@@ -184,7 +184,7 @@ const EditCourse = () => {
                     courseTrailerThumbnailName: course.courseTrailerThumbnailName,
                     
                     courseMembership: course.courseMembership,
-                    coursePublished: course.coursePublished,
+                    // coursePublished: course.coursePublished,
                     courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
 
                     courseCategory : courseCategory.map((category) => {
@@ -452,7 +452,7 @@ const EditCourse = () => {
                     />         
                                     </CCol>
                                 </CFormGroup>
-                                <CFormGroup row>
+                                {/* <CFormGroup row>
                                     <CCol md="3">
                                         <CLabel htmlFor="categoryInput">Published</CLabel>
                                     </CCol>
@@ -468,7 +468,7 @@ const EditCourse = () => {
                     }}
                     />         
                                     </CCol>
-                                </CFormGroup>
+                                </CFormGroup> */}
                        
 
                             </CForm>
