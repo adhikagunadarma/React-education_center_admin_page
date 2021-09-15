@@ -229,8 +229,8 @@ const ListCourse = () => {
                                     'courseMembership':
                                         (item) => (
                                             <td>
-                                                <CBadge color={getBadge(item.membership)}>
-                                                    {item.status === true ? (
+                                                <CBadge color={getBadge(item.courseMembership)}>
+                                                    {item.courseMembership === true ? (
                                                         'Member'
                                                     ) : (
                                                         'Non-Member'
@@ -241,8 +241,8 @@ const ListCourse = () => {
                                     'coursePublished':
                                         (item) => (
                                             <td>
-                                                <CBadge color={getBadge(item.membership)}>
-                                                    {item.status === true ? (
+                                                <CBadge color={getBadge(item.coursePublished)}>
+                                                    {item.coursePublished === true ? (
                                                         'Published'
                                                     ) : (
                                                         'Not Published'
