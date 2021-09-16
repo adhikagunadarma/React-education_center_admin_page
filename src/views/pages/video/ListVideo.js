@@ -32,7 +32,7 @@ const getBadge = status => {
     default: return 'primary'
   }
 }
-const fields = ['thumbnail','title', 'category','published', 'membership', 'totalViews','action']
+const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourse', 'action']
 
 
 const ListVideo = () => {
@@ -211,31 +211,8 @@ function confirmDelete(){
                     </td>
                     )
                 },
-                'membership':
-                (item)=>(
-                    <td>
-                      <CBadge color={getBadge(item.membership)}>
-                          {item.status === true ? (
-                            'Member'
-                        ) : (
-                          'Non-Member'
-                        )}
-                      </CBadge>
-                    </td>
-                  ),
-                  'published':
-                  (item)=>(
-                      <td>
-                        <CBadge color={getBadge(item.membership)}>
-                            {item.status === true ? (
-                              'Published'
-                          ) : (
-                            'Not Published'
-                          )}
-                        </CBadge>
-                      </td>
-                    ),
-                    'thumbnail':
+                
+                    'videoThumbnail':
                     (item)=>(
                         <td>
                           <CImg
