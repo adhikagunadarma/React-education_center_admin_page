@@ -89,7 +89,6 @@ const AddVideo = () => {
                 if (data.statusCode === 0) {
                   resolve(true)
                   setCourses(data.data)
-                  console.log(data.data)
                 } else {
                   resolve(false)
                   setStatusColor('danger')
@@ -104,7 +103,6 @@ const AddVideo = () => {
       }
 
     function submitData() {
-        console.log(video)
         if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoFile === undefined || video.videoThumbnail === undefined) {
             // setStatusColor("warning")
             // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
