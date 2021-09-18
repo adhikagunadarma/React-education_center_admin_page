@@ -103,9 +103,10 @@ const AddVideo = () => {
       }
 
     function submitData() {
-        if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoFile === undefined || video.videoThumbnail === undefined) {
-            // setStatusColor("warning")
-            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+        console.log(video)
+        if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoFile === undefined || video.videoThumbnail === undefined || !video.videoCourse || video.videoCourse == "none") {
+            setStatusColor("warning")
+            setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
             setValidationError(true)
             return
         }
@@ -149,19 +150,6 @@ const AddVideo = () => {
 
 
     }
-
-    function changeVideoCourse(course){
-        //homework to change video course when changed
-        // const index = courseCategory.indexOf(category);
-        // if (index > -1) {
-        //     courseCategory.splice(index, 1);
-        // }
-        // setCourseCategory(courseCategory)
-        
-        // setStatusColor('success')
-        // setStatusColor(`Success delete category ${category.categoryName}`)
-    }
-
 
     async function getDocumentFromFile($event, type) {
         if ($event.target.files[0]) {
@@ -300,7 +288,7 @@ const AddVideo = () => {
                                    
                                                     setVideo({...video, videoCourse : event.target.value}) 
                                             }}>
-                                   
+                                            <option value="none">- Mohon Pilih Jenis Course - </option> 
                                         {
                                             courses.map((course,index) => (
                                             <option key={course.id} value={course.id}>{course.courseName}</option>
