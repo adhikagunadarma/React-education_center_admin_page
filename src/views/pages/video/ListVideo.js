@@ -245,7 +245,7 @@ function confirmDelete(){
                 <CModalTitle>Delete Confirmation</CModalTitle>
               </CModalHeader>
               <CModalBody>
-                Are you sure you want to delete category name {selectedVideo.name} ?
+                Are you sure you want to delete video name {selectedVideo.name} ?
               </CModalBody>
               <CModalFooter>
                 <CButton color="danger"

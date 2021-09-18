@@ -144,7 +144,6 @@ const EditVideo = () => {
       }
 
     function submitData() {
-        console.log(video)
         if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoThumbnail === undefined || !video.videoCourse || video.videoCourse == "none") {
             setStatusColor("warning")
             setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
@@ -170,7 +169,6 @@ const EditVideo = () => {
 
                 })
             };
-            console.log(requestOptions.body)
             fetch(baseEndpoint + pathEndpoint, requestOptions)
                 .then(response => response.json())
                 .then(data => {
