@@ -106,7 +106,7 @@ const routes = [
 
   { path: '/list-video', exact: true, name: 'List Video', component: ListVideo },
   { path: '/add-video', exact: true,  name: 'Add Video', component: AddVideo },
-  { path: '/edit-video', exact: true,  name: 'Edit Video', component: EditVideo },
+  { path: '/edit-video/:id', exact: true,  name: 'Edit Video', component: EditVideo },
 ];
 
 export default routes;
