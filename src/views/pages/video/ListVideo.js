@@ -32,7 +32,7 @@ const getBadge = status => {
     default: return 'primary'
   }
 }
-const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourse', 'action']
+const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseName', 'action']
 
 
 const ListVideo = () => {
