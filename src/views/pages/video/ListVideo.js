@@ -111,7 +111,7 @@ function getData() {
 }
 
 function goToEditVideo(data,index){
-  history.push("/edit-videos/"+ data.id);
+  history.push("/edit-video/"+ data.id);
 }
 
 function deleteData(data,index){
