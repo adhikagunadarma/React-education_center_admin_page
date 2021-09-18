@@ -50,6 +50,7 @@ const EditCourse = React.lazy(() => import('./views/pages/course/EditCourse'));
 
 const ListVideo = React.lazy(() => import('./views/pages/video/ListVideo'));
 const AddVideo = React.lazy(() => import('./views/pages/video/AddVideo'));
+const EditVideo = React.lazy(() => import('./views/pages/video/EditVideo'));
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
@@ -105,6 +106,7 @@ const routes = [
 
   { path: '/list-video', exact: true, name: 'List Video', component: ListVideo },
   { path: '/add-video', exact: true,  name: 'Add Video', component: AddVideo },
+  { path: '/edit-video', exact: true,  name: 'Edit Video', component: EditVideo },
 ];
 
 export default routes;
