@@ -27,7 +27,7 @@ const _nav = [
     _tag: 'CSidebarNavItem',
     name: 'Course',
     to: '/list-course',
-    icon: <CIcon name="cil-tags" customClasses="c-sidebar-nav-icon" />,
+    icon: <CIcon name="cil-file" customClasses="c-sidebar-nav-icon" />,
 
   },
   {
