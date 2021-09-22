@@ -1,16 +1,23 @@
 // Here you can add other styles
 
 // list video
-.table th, .table td {
-    padding: 0.75rem;
-    vertical-align: middle;
-    border-top: 1px solid;
-    border-top-color: #d8dbe0;
+.table th,
+.table td {
+  padding: 0.75rem;
+  vertical-align: middle;
+  border-top: 1px solid;
+  border-top-color: #d8dbe0;
 }
-.td-avatar-thumbnail{
-    width: 75px;
-    height: 75px;
-    margin: auto;
-    /* text-align: end; */
-    vertical-align: middle;
+.td-avatar-thumbnail {
+  width: 75px;
+  height: 75px;
+  margin: auto;
+  /* text-align: end; */
+  vertical-align: middle;
+}
+
+.card-header-list {
+  width: fit-content;
+  margin-top: 1em;
+  display: inline-block;
 }

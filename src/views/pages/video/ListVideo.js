@@ -19,7 +19,8 @@ import {
   CToastHeader,
   CToastBody,
   CLabel,
-  CImg
+  CImg,
+  CSelect
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
@@ -43,6 +44,9 @@ const ListVideo = () => {
   
 const [loadingModal, setLoadingModal] = React.useState(false)
 const [videos, setVideos] = React.useState([])
+const [courses, setCourses] = React.useState([]) // all courses
+const [selectedCourse, setSelectedCourse] = React.useState('') // all courses
+
 
 const [position, setPosition] = React.useState('top-center')
 const [autohide, setAutohide] = React.useState(true)
@@ -72,19 +76,56 @@ const toasters = (()=>{
 })()
 
 useEffect(() => {
-  getData()
   if (statusMessage != ''){
     addToast() // kalo abis ada perubahan status message / color, baru add tiast
   }
 
-}, [statusColor,statusMessage]);
+  if (courses.length === 0 ){//first time only
+    getCourses()
+  }
 
-function getData() {
+}, [selectedCourse,statusColor,statusMessage]);
+
+function getCourses() {
+  const idTeacher = "6137021a86140b3a7043bbba"
+  setLoadingModal(true)
+  return new Promise((resolve) => {
+    const baseEndpoint = "http://localhost:8080"
+    const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
+    const requestOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' },
+    };
+    fetch(baseEndpoint + pathEndpoint, requestOptions)
+      .then(response => response.json())
+      .then(data => {
+        setTimeout((_) => {
+          setLoadingModal(false)
+          if (data.statusCode === 0) {
+            resolve(true)
+            setCourses(data.data)
+          } else {
+            resolve(false)
+            setStatusColor('danger')
+            setStatusMessage(data.statusMessage)
+          }
+        }, 1000)
+
+      });
+  })
+
+
+}
+
+function getData(id) {
+  if (!id || id == "none"){
+    return
+  }
 
   setLoadingModal(true)
   return new Promise((resolve) => {
       const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/videos"
+      const pathEndpoint = "/api/educen/videos/course/"+ id
       const requestOptions = {
           method: 'GET',
           headers: { 'Content-Type': 'application/json' },
@@ -157,7 +198,26 @@ function confirmDelete(){
         <CCol sm="12" lg="12">
           <CCard>
             <CCardHeader>
+              <div>
               List Video
+                </div>
+                <div className="card-header-list">
+                <CSelect name="select" id="select" value={selectedCourse} onChange={(event) => {
+                                   setSelectedCourse(event.target.value)
+          
+                                   getData(event.target.value)
+
+                           }}>
+                           <option value="none">- Mohon Pilih Jenis Course - </option> 
+                       {
+                           courses.map((course,index) => (
+                           <option key={course.id} value={course.id}>{course.courseName}</option>
+                           ))
+
+                       }
+                      
+                   </CSelect>
+                </div>
               <div className="card-header-actions">
                 <CLink to="/add-video">
                 <CButton block variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1">
