@@ -72,7 +72,8 @@ const AddVideo = () => {
     }, [video,statusColor, statusMessage]);
 
     function getCourses() {
-        const idTeacher = "6137021a86140b3a7043bbba"
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
+        const idTeacher = loginInfo.id
         setLoadingModal(true)
         return new Promise((resolve) => {
           const baseEndpoint = "http://localhost:8080"
