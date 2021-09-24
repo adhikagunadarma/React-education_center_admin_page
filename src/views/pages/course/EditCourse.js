@@ -164,6 +164,7 @@ const EditCourse = () => {
             return
         }
         setLoadingModal(true)
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         return new Promise((resolve) => {
             const baseEndpoint = "http://localhost:8080"
             const pathEndpoint = "/api/educen/course/" + id
@@ -185,7 +186,7 @@ const EditCourse = () => {
                     
                     courseMembership: course.courseMembership,
                     // coursePublished: course.coursePublished,
-                    courseTeacher : "6137021a86140b3a7043bbba", // hardcode, should take teacher id from login
+                    courseTeacher : loginInfo.id, // hardcode, should take teacher id from login
 
                     courseCategory : courseCategory.map((category) => {
                         if (category.id){

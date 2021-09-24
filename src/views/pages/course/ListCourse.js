@@ -25,6 +25,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
+import Login from '../login/Login';
 const getBadge = status => {
     switch (status) {
         case 'Active': return 'success'
@@ -81,11 +82,11 @@ const ListCourse = () => {
     }, [statusColor, statusMessage]);
 
     function getData() {
-
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         setLoadingModal(true)
         return new Promise((resolve) => {
             //default get listcourse will fetched by teacher id because its their login info
-            const idTeacher = "6137021a86140b3a7043bbba"// later on will changed by login teacher info
+            const idTeacher = loginInfo.id
             const baseEndpoint = "http://localhost:8080"
             const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
             const requestOptions = {
