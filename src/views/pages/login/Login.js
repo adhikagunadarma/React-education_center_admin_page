@@ -97,6 +97,8 @@ const Login = () => {
               resolve(true)
               setStatusColor('success')
               // need to save the credential information in local to provide data later on when doing task
+              let loginInfo = data.data[0]
+              sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
 
               // also need to genertate token that save the credential for amount of time
               // need to work on the routing, not login cannot access the page

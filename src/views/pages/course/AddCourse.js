@@ -81,7 +81,8 @@ const AddCourse = () => {
     }, [course,statusColor, statusMessage]);
 
     function getCategories() {
-
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
+        
         setLoadingModal(true)
         return new Promise((resolve) => {
           const baseEndpoint = "http://localhost:8080"
