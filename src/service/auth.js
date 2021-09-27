@@ -4,6 +4,12 @@ const authContext = React.createContext();
 
 export function useAuth() {
    const [authed, setAuthed] = React.useState(false);
+   const doLogout = (_) => {
+          return new Promise(resolve => {
+              sessionStorage.removeItem('loginInfo');
+              resolve(true)
+          })
+   }
    const doLogin = async(req) => {
             return new Promise((resolve) => {
                 const baseEndpoint = "http://localhost:8080"
@@ -44,7 +50,7 @@ export function useAuth() {
      logout() {
        return new Promise((res) => {
          setAuthed(false);
-         res();
+         res(doLogout());
        });
      }
    };
