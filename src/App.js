@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
-import { HashRouter, Route, Switch } from 'react-router-dom';
+import { HashRouter, Route, Switch,Redirect } from 'react-router-dom';
+
+import { useAuth } from './service/auth';
 import './scss/style.scss';
 
 const loading = (
@@ -17,6 +19,19 @@ const Register = React.lazy(() => import('./views/pages/register/Register'));
 const Page404 = React.lazy(() => import('./views/pages/page404/Page404'));
 const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
+
+function PrivateRoute ({component: Component, ...rest}) {
+  const { authed } = useAuth();
+  return (
+    <Route exact
+      {...rest}
+      render={(props) => authed === true
+        ? <Component {...props} />
+        : <Redirect to={{pathname: '/login', state: {from: props.location}}} />}
+    />
+  )
+}
+
 class App extends Component {
 
   render() {
@@ -28,7 +43,9 @@ class App extends Component {
               <Route exact path="/register" name="Register Page" render={props => <Register {...props}/>} />
               <Route exact path="/404" name="Page 404" render={props => <Page404 {...props}/>} />
               <Route exact path="/500" name="Page 500" render={props => <Page500 {...props}/>} />
-              <Route path="/" name="Home" render={props => <TheLayout {...props}/>} />
+              {/* <Route path="/" name="Home" render={props => <TheLayout {...props}/>} /> */}
+              
+              <PrivateRoute name="Home" path='/' component={TheLayout} />
             </Switch>
           </React.Suspense>
       </HashRouter>
