@@ -136,40 +136,7 @@ const AddVideo = () => {
                     setStatusColor('danger')
                 }
                 setStatusMessage(result.statusMessage)
-            // const baseEndpoint = "http://localhost:8080"
-            // const pathEndpoint = "/api/educen/video"
-            // const requestOptions = {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify({
-
-            //         videoTitle: video.videoTitle,
-            //         videoDescription: video.videoDescription,
-            //         videoThumbnail: video.videoThumbnail,
-            //         videoThumbnailName: video.videoThumbnailName,
-            //         videoFile: video.videoFile,
-            //         videoFileName: video.videoFileName,
-            //         videoCourse : video.videoCourse
-
-            //     })
-            // };
-            // fetch(baseEndpoint + pathEndpoint, requestOptions)
-            //     .then(response => response.json())
-            //     .then(data => {
-            //         setTimeout((_) => {
-            //             setLoadingModal(false)
-            //             if (data.statusCode === 0) {
-            //                 resolve(true)
-            //                 setStatusColor('success')
-            //                 history.push("/list-video");
-            //             } else {
-            //                 resolve(false)
-            //                 setStatusColor('danger')
-            //             }
-            //             setStatusMessage(data.statusMessage)
-            //         }, 1000)
-
-            //     });
+         
         })
 
 
