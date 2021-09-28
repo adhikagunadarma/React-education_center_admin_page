@@ -29,7 +29,7 @@ import CIcon from '@coreui/icons-react'
 const Login = () => {
 
   const history = useHistory();
-  const { login, authed } = useAuth()
+  const { login } = useAuth()
   
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
