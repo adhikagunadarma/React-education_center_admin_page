@@ -1,9 +1,21 @@
 import * as React from "react";
+const axios = require('axios').default;
 
 const authContext = React.createContext();
 
 export function useAuth() {
    const [authed, setAuthed] = React.useState(false);
+   const checkAuth = (_) => {
+    return new Promise(resolve => {
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
+        if (loginInfo && loginInfo != null){
+          setAuthed(true);
+        }else{
+          setAuthed(true);
+        }
+        resolve(authed)
+    })
+}
    const logout = (_) => {
           return new Promise(resolve => {
               sessionStorage.removeItem('loginInfo');
@@ -11,40 +23,42 @@ export function useAuth() {
               resolve(authed)
           })
    }
-   const login = async(req) => {
-            return new Promise((resolve) => {
+   const login = (req) => {
+            return new Promise(async(resolve) => {
                 const baseEndpoint = "http://localhost:8080"
                 const pathEndpoint = "/api/educen/teacher/login"
-                const requestOptions = {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    teacherUsername: req.username,
-                    teacherPassword: req.password,
-                  })
-                };
-                fetch(baseEndpoint + pathEndpoint, requestOptions)
-                  .then(response => response.json())
-                  .then(data => {
-                      if (data.statusCode === 0) {
-                        let loginInfo = data.data[0]
-                        sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
-                        setAuthed(true);
-                        console.log(authed)
-                        resolve(authed)
-                      } else {
-                        resolve(data.statusMessage)
-                      }
-          
-                  });
+                const requestBody = {
+                  teacherUsername: req.username,
+                  teacherPassword: req.password,
+                }
+                try {
+                  
+                    const result = await axios.post(baseEndpoint + pathEndpoint, requestBody)
+                    if (result.data.statusCode === 0 && result.status === 200) {
+                    
+                      let loginInfo = result.data.data[0]
+                      sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
+                      setAuthed(true);
+                      resolve(authed)
+                    } else {
+                      resolve(result.data.statusMessage)
+                    }
+                 
+                }
+                catch(e){
+                  console.log(e)
+                  resolve(e)
+                }
               })
    }
 
    return {
     authed,
     login,
-    logout
+    logout,
+    checkAuth
    };
+
 }
 
 export function AuthProvider({ children }) {

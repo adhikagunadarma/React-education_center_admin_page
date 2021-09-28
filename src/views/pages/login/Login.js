@@ -29,7 +29,7 @@ import CIcon from '@coreui/icons-react'
 const Login = () => {
 
   const history = useHistory();
-  const { login } = useAuth()
+  const { login, authed } = useAuth()
   
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
@@ -71,17 +71,18 @@ const Login = () => {
       setValidationError(true)
       return
     }
-
     setLoadingModal(true)
-    let result = await login({username : teacherUsername, password : teacherPassword})
-    console.log(result)
-    console.log(JSON.parse(sessionStorage.getItem('loginInfo')))
-    setLoadingModal(false)
-    if (result)
-      history.push("/dashboard");
-    else 
-      setStatusColor('danger')
-      setStatusMessage(result)
+    const result = await login({username : teacherUsername, password : teacherPassword})
+      console.log(result)
+      setLoadingModal(false)
+      if (result === true){
+        history.push("/dashboard");
+      }
+      else {
+        setStatusColor('danger')
+        setStatusMessage(result)
+      }
+  
   }
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
