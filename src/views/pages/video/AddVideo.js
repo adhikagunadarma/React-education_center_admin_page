@@ -23,12 +23,15 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
+import { useVideoService } from 'src/service/video';
 
 const AddVideo = () => {
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
     const history = useHistory();
+    const { addVideo } = useVideoService()
+
     const [loadingModal, setLoadingModal] = React.useState(false)
     
     const [video, setVideo] = React.useState({})
@@ -111,41 +114,62 @@ const AddVideo = () => {
             return
         }
         setLoadingModal(true)
-        return new Promise((resolve) => {
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/video"
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
+        return new Promise( async (resolve) => {
+            let request = {
+                videoTitle: video.videoTitle,
+                videoDescription: video.videoDescription,
+                videoThumbnail: video.videoThumbnail,
+                videoThumbnailName: video.videoThumbnailName,
+                videoFile: video.videoFile,
+                videoFileName: video.videoFileName,
+                videoCourse : video.videoCourse
+            }
+            const result = await addVideo(request)
+                setLoadingModal(false)
+                console.log(result)
+                if (result.statusCode === 0) {
+                    resolve(true)
+                    setStatusColor('success')
+                    history.push("/list-video");
+                } else {
+                    resolve(false)
+                    setStatusColor('danger')
+                }
+                setStatusMessage(result.statusMessage)
+            // const baseEndpoint = "http://localhost:8080"
+            // const pathEndpoint = "/api/educen/video"
+            // const requestOptions = {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify({
 
-                    videoTitle: video.videoTitle,
-                    videoDescription: video.videoDescription,
-                    videoThumbnail: video.videoThumbnail,
-                    videoThumbnailName: video.videoThumbnailName,
-                    videoFile: video.videoFile,
-                    videoFileName: video.videoFileName,
-                    videoCourse : video.videoCourse
+            //         videoTitle: video.videoTitle,
+            //         videoDescription: video.videoDescription,
+            //         videoThumbnail: video.videoThumbnail,
+            //         videoThumbnailName: video.videoThumbnailName,
+            //         videoFile: video.videoFile,
+            //         videoFileName: video.videoFileName,
+            //         videoCourse : video.videoCourse
 
-                })
-            };
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                            history.push("/list-video");
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
+            //     })
+            // };
+            // fetch(baseEndpoint + pathEndpoint, requestOptions)
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         setTimeout((_) => {
+            //             setLoadingModal(false)
+            //             if (data.statusCode === 0) {
+            //                 resolve(true)
+            //                 setStatusColor('success')
+            //                 history.push("/list-video");
+            //             } else {
+            //                 resolve(false)
+            //                 setStatusColor('danger')
+            //             }
+            //             setStatusMessage(data.statusMessage)
+            //         }, 1000)
 
-                });
+            //     });
         })
 
 
