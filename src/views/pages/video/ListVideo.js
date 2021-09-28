@@ -26,6 +26,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
+import { useVideoService } from 'src/service/video';
 const getBadge = status => {
   switch (status) {
     case true : return 'success'
@@ -38,9 +39,9 @@ const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseNa
 
 const ListVideo = () => {
 
-  
+const history = useHistory();
 
-  const history = useHistory();
+const { getVideosByCourse, deleteVideo } = useVideoService()
   
 const [loadingModal, setLoadingModal] = React.useState(false)
 const [videos, setVideos] = React.useState([])
@@ -90,6 +91,7 @@ function getCourses() {
   let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
   const idTeacher = loginInfo.id
   setLoadingModal(true)
+ 
   return new Promise((resolve) => {
     const baseEndpoint = "http://localhost:8080"
     const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
@@ -118,35 +120,22 @@ function getCourses() {
 
 }
 
-function getData(id) {
+ async function getData(id) {
   if (!id || id == "none"){
     return
   }
-
   setLoadingModal(true)
-  return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/videos/course/"+ id
-      const requestOptions = {
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' },
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-          .then(response => response.json())
-          .then(data => {
-            setTimeout((_) => {
-              setLoadingModal(false)
-              if (data.statusCode === 0){
-                resolve(true)
-                setVideos(data.data)
-              }else{
-                resolve(false)
-                setStatusColor('danger')
-                setStatusMessage(data.statusMessage)
-              }
-            },1000)
-   
-          });
+  return new Promise( async (resolve) => {
+    const result = await getVideosByCourse({id : id});
+    if (result.statusCode === 0) {
+      resolve(true)
+      setVideos(result.data)
+    } else {
+      resolve(false)
+      setStatusColor('danger')
+      setStatusMessage(result.statusMessage)
+    }
+    setLoadingModal(false)
   })
 
 
@@ -164,30 +153,20 @@ function deleteData(data,index){
 function confirmDelete(){
   setDeleteModal(false)
   setLoadingModal(true)
-  return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/video/" + selectedVideo.id
-      const requestOptions = {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-      };
-      fetch(baseEndpoint + pathEndpoint,requestOptions)
-          .then(response => response.json())
-          .then(data => {
-            setTimeout((_) => {
+
+  return new Promise(async(resolve) => {
+      const result = await deleteVideo({id : selectedVideo.id});
               setLoadingModal(false)
-              if (data.statusCode === 0){
+              if (result.statusCode === 0){
                 resolve(true)
                 setStatusColor('success')
               }else{
                 resolve(false)
                 setStatusColor('danger')
               }
-              
-              setStatusMessage(data.statusMessage)
-            },1000)
-   
-          });
+              // setStatusMessage(result.statusMessage)
+              window.location.reload();
+      
   })
 
 }
