@@ -74,6 +74,8 @@ const Login = () => {
 
     setLoadingModal(true)
     let result = await login({username : teacherUsername, password : teacherPassword})
+    console.log(result)
+    console.log(JSON.parse(sessionStorage.getItem('loginInfo')))
     setLoadingModal(false)
     if (result)
       history.push("/dashboard");
@@ -98,7 +100,7 @@ const Login = () => {
                           <CIcon name="cil-user" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput className="form-control-warning" type="text" placeholder="Username" id="categoryInput" onChange={event => setTeacherUsername(event.target.value)} value={teacherUsername} autoComplete="username" required />
+                      <CInput className="form-control-warning" type="text" placeholder="Username" id="usernameInput" onChange={event => setTeacherUsername(event.target.value)} value={teacherUsername} autoComplete="username" required />
                       <CInvalidFeedback className="help-block" >
                         Please provide a valid username
                       </CInvalidFeedback>
@@ -109,7 +111,7 @@ const Login = () => {
                           <CIcon name="cil-lock-locked" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput className="form-control-warning" type="password" id="categoryInput" onChange={event => setTeacherPassword(event.target.value)} value={teacherPassword} placeholder="Password" autoComplete="current-password" required />
+                      <CInput className="form-control-warning" type="password" id="passwordInput" onChange={event => setTeacherPassword(event.target.value)} value={teacherPassword} placeholder="Password" autoComplete="current-password" required />
                       <CInvalidFeedback className="help-block" >
                         Please provide a valid password
                       </CInvalidFeedback>

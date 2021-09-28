@@ -4,13 +4,14 @@ const authContext = React.createContext();
 
 export function useAuth() {
    const [authed, setAuthed] = React.useState(false);
-   const doLogout = (_) => {
+   const logout = (_) => {
           return new Promise(resolve => {
               sessionStorage.removeItem('loginInfo');
-              resolve(true)
+              setAuthed(false);
+              resolve(authed)
           })
    }
-   const doLogin = async(req) => {
+   const login = async(req) => {
             return new Promise((resolve) => {
                 const baseEndpoint = "http://localhost:8080"
                 const pathEndpoint = "/api/educen/teacher/login"
@@ -25,15 +26,15 @@ export function useAuth() {
                 fetch(baseEndpoint + pathEndpoint, requestOptions)
                   .then(response => response.json())
                   .then(data => {
-                    setTimeout((_) => {
                       if (data.statusCode === 0) {
                         let loginInfo = data.data[0]
                         sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
-                        resolve(true)
+                        setAuthed(true);
+                        console.log(authed)
+                        resolve(authed)
                       } else {
                         resolve(data.statusMessage)
                       }
-                    }, 1000)
           
                   });
               })
@@ -41,18 +42,8 @@ export function useAuth() {
 
    return {
     authed,
-     login(req) {
-       return new Promise((res) => {
-         setAuthed(true);
-         res(doLogin(req));
-       });
-     },
-     logout() {
-       return new Promise((res) => {
-         setAuthed(false);
-         res(doLogout());
-       });
-     }
+    login,
+    logout
    };
 }
 
