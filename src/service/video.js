@@ -13,11 +13,9 @@ export function useVideoService() {
                 try {
                   
                     const result = await axios.get(baseEndpoint + pathEndpoint)
-                    if (result.data.statusCode === 0 && result.status === 200) {
-                      resolve(true)
-                    } else {
-                      resolve(result.data.statusMessage)
-                    }
+                    if (result.status === 200) {
+                      resolve(result.data)
+                    } 
                  
                 }
                 catch(e){
@@ -26,6 +24,25 @@ export function useVideoService() {
                 }
               })
    }
+
+   const getVideo = (req) => {
+    return new Promise(async(resolve) => {
+        const baseEndpoint = BASE_URL + PATH_URL
+        const pathEndpoint = "video/" + req.id
+      
+        try {
+          
+            const result = await axios.get(baseEndpoint + pathEndpoint)
+            if (result.data.statusCode === 0 && result.status === 200) {
+              resolve(result.data)
+            } 
+         
+        }
+        catch(e){
+          resolve(e)
+        }
+      })
+}
 
    const addVideo = (req) => {
     return new Promise(async(resolve) => {
@@ -42,11 +59,9 @@ export function useVideoService() {
         }
         try {
             const result = await axios.post(baseEndpoint + pathEndpoint, requestBody)
-            if (result.data.statusCode === 0 && result.status === 200) {
-              resolve(true)
-            } else {
-              resolve(result.data.statusMessage)
-            }
+            if (result.status === 200) {
+              resolve(result.data)
+            } 
         }
         catch(e){
           resolve(e)
@@ -57,7 +72,7 @@ export function useVideoService() {
     const editVideo = (req) => {
         return new Promise(async(resolve) => {
             const baseEndpoint = BASE_URL + PATH_URL
-            const pathEndpoint = "video"
+            const pathEndpoint = "video/" + req.id 
             const requestBody = {
                 videoTitle: req.videoTitle,
                 videoDescription: req.videoDescription,
@@ -69,11 +84,9 @@ export function useVideoService() {
             }
             try {
                 const result = await axios.put(baseEndpoint + pathEndpoint, requestBody)
-                if (result.data.statusCode === 0 && result.status === 200) {
-                  resolve(true)
-                } else {
-                  resolve(result.data.statusMessage)
-                }
+                if (result.status === 200) {
+                  resolve(result.data)
+                } 
             }
             catch(e){
               resolve(e)
@@ -90,11 +103,9 @@ export function useVideoService() {
                 try {
                   
                     const result = await axios.delete(baseEndpoint + pathEndpoint)
-                    if (result.data.statusCode === 0 && result.status === 200) {
-                      resolve(true)
-                    } else {
-                      resolve(result.data.statusMessage)
-                    }
+                    if (result.status === 200) {
+                      resolve(result.data)
+                    } 
                 }
                 catch(e){
                   console.log(e)
@@ -108,7 +119,7 @@ export function useVideoService() {
     addVideo,
     editVideo,
     deleteVideo,
-
+    getVideo
    };
 
 }
