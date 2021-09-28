@@ -1,4 +1,5 @@
 import * as React from "react";
+import { BASE_URL, PATH_URL } from 'src/config.json'
 const axios = require('axios').default;
 
 const authContext = React.createContext();
@@ -25,8 +26,8 @@ export function useAuth() {
    }
    const login = (req) => {
             return new Promise(async(resolve) => {
-                const baseEndpoint = "http://localhost:8080"
-                const pathEndpoint = "/api/educen/teacher/login"
+                const baseEndpoint = BASE_URL + PATH_URL;
+                const pathEndpoint = "teacher/login"
                 const requestBody = {
                   teacherUsername: req.username,
                   teacherPassword: req.password,
