@@ -24,11 +24,14 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
+import { useCategoryService } from 'src/service/category';
 
 const EditCategory = () => {
 
   const filelimitSize = 5242880;
   const { id } = useParams();
+  
+  const { editCategory, getCategory } = useCategoryService()
 
   const history = useHistory();
   const [loadingModal, setLoadingModal] = React.useState(false)
@@ -77,33 +80,27 @@ const EditCategory = () => {
   function getData() {
 
     setLoadingModal(true)
-    return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/category/" + id
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setTimeout((_) => {
-            setLoadingModal(false)
-            if (data.statusCode === 0) {
-              resolve(true)
-              // setStatusColor('success')
-              setCategoryName(data.data.categoryName)
-              setCategoryDesc(data.data.categoryDescription)
-              setCategoryThumbnail(data.data.categoryThumbnail)
-              setCategoryThumbnailName(data.data.categoryThumbnailName)
-            } else {
-              resolve(false)
-              // setStatusColor('danger')
-            }
-            // setStatusMessage(data.statusMessage)
-          }, 1000)
+    return new Promise( async (resolve) => {
+      let request = {
+          id : id
+      }
+      const result = await getCategory(request)
+      setLoadingModal(false)
+      console.log(result)
+      if (result.statusCode === 0) {
+        resolve(true)
+        
+        setCategoryDesc(result.data.categoryDescription)
+        setCategoryName(result.data.categoryName)
+        setCategoryThumbnail(result.data.categoryThumbnail)
+        setCategoryThumbnailName(result.data.categoryThumbnailName)
+        setStatusColor('success')
 
-        });
+      } else {
+        resolve(false)
+        setStatusColor('danger')
+      }
+      setStatusMessage(result.statusMessage)
     })
 
 
@@ -117,37 +114,27 @@ const EditCategory = () => {
       return
     }
     setLoadingModal(true)
-    return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/category/" + id
-      const requestOptions = {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    return new Promise( async (resolve) => {
+      let request = {
+          id : id,
           categoryName: categoryName,
-          categoryDescription: categoryDesc,
+          categoryDesc: categoryDesc,
           categoryThumbnail: categoryThumbnail,
           categoryThumbnailName: categoryThumbnailName
-        })
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setTimeout((_) => {
-            setLoadingModal(false)
-            if (data.statusCode === 0) {
-              resolve(true)
-              setStatusColor('success')
-              history.push("/list-category");
-            } else {
-              resolve(false)
-              setStatusColor('danger')
-            }
-            setStatusMessage(data.statusMessage)
-          }, 1000)
-
-        });
-    })
+      }
+      const result = await editCategory(request)
+      setLoadingModal(false)
+      if (result.statusCode === 0) {
+          resolve(true)
+          setStatusColor('success')
+          history.push("/list-category");
+      } else {
+          resolve(false)
+          setStatusColor('danger')
+      }
+      setStatusMessage(result.statusMessage)
+  
+  })
 
 
   }
