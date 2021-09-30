@@ -24,8 +24,12 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
 import Toaster from 'src/views/notifications/toaster/Toaster';
+import { useCategoryService } from 'src/service/category';
 
 const AddCategory = () => {
+
+  
+const { addCategory } = useCategoryService()
 
   const filelimitSize = 50 * 1024 * 1024;
   const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
@@ -77,36 +81,25 @@ const AddCategory = () => {
       return
     }
     setLoadingModal(true)
-    return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/category"
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          categoryName: categoryName,
+    return new Promise(async(resolve) => {
+      let request = {
+        categoryName: categoryName,
           categoryDescription: categoryDesc,
           categoryThumbnail: categoryThumbnail,
           categoryThumbnailName: categoryThumbnailName
-        })
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setTimeout((_) => {
-            setLoadingModal(false)
-            if (data.statusCode === 0) {
-              resolve(true)
-              setStatusColor('success')
-              history.push("/list-category");
-            } else {
-              resolve(false)
-              setStatusColor('danger')
-            }
-            setStatusMessage(data.statusMessage)
-          }, 1000)
-
-        });
+    }
+    const result = await addCategory(request)
+        setLoadingModal(false)
+        console.log(result)
+        if (result.statusCode === 0) {
+            resolve(true)
+            setStatusColor('success')
+            history.push("/list-category");
+        } else {
+            resolve(false)
+            setStatusColor('danger')
+        }
+        setStatusMessage(result.statusMessage)
     })
 
 
