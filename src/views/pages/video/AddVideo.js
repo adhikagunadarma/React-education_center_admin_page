@@ -126,7 +126,6 @@ const AddVideo = () => {
             }
             const result = await addVideo(request)
                 setLoadingModal(false)
-                console.log(result)
                 if (result.statusCode === 0) {
                     resolve(true)
                     setStatusColor('success')

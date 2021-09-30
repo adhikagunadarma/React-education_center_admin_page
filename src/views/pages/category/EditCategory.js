@@ -86,7 +86,6 @@ const EditCategory = () => {
       }
       const result = await getCategory(request)
       setLoadingModal(false)
-      console.log(result)
       if (result.statusCode === 0) {
         resolve(true)
         

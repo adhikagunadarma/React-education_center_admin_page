@@ -90,7 +90,6 @@ const { addCategory } = useCategoryService()
     }
     const result = await addCategory(request)
         setLoadingModal(false)
-        console.log(result)
         if (result.statusCode === 0) {
             resolve(true)
             setStatusColor('success')

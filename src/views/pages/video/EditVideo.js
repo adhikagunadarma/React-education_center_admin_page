@@ -91,7 +91,6 @@ const EditVideo = () => {
           }
           const result = await getVideo(request)
           setLoadingModal(false)
-          console.log(result)
           if (result.statusCode === 0) {
             resolve(true)
             
