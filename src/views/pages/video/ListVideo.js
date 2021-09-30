@@ -27,13 +27,7 @@ import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
 import { useVideoService } from 'src/service/video';
-const getBadge = status => {
-  switch (status) {
-    case true : return 'success'
-    case false : return 'danger'
-    default: return 'primary'
-  }
-}
+
 const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseName', 'action']
 
 
