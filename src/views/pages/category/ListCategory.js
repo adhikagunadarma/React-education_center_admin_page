@@ -25,12 +25,15 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
+import { useCategoryService } from 'src/service/category';
 
 const fields = ['categoryThumbnail', 'categoryName', 'categoryDescription', 'action']
 
 const ListCategory = () => {
 
   const history = useHistory();
+  
+const { getCategories, deleteCategory } = useCategoryService()
 
   const [loadingModal, setLoadingModal] = React.useState(false)
   const [categories, setCategories] = React.useState([])
@@ -73,29 +76,17 @@ const ListCategory = () => {
   function getData() {
 
     setLoadingModal(true)
-    return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/categories"
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setTimeout((_) => {
-            setLoadingModal(false)
-            if (data.statusCode === 0) {
-              resolve(true)
-              setCategories(data.data)
-            } else {
-              resolve(false)
-              setStatusColor('danger')
-              setStatusMessage(data.statusMessage)
-            }
-          }, 1000)
-
-        });
+    return new Promise( async (resolve) => {
+      const result = await getCategories();
+      if (result.statusCode === 0) {
+        resolve(true)
+        setCategories(result.data)
+      } else {
+        resolve(false)
+        setStatusColor('danger')
+        setStatusMessage(result.statusMessage)
+      }
+      setLoadingModal(false)
     })
 
 
@@ -113,30 +104,18 @@ const ListCategory = () => {
   function confirmDelete() {
     setDeleteModal(false)
     setLoadingModal(true)
-    return new Promise((resolve) => {
-      const baseEndpoint = "http://localhost:8080"
-      const pathEndpoint = "/api/educen/category/" + selectedCategory.id
-      const requestOptions = {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-      };
-      fetch(baseEndpoint + pathEndpoint, requestOptions)
-        .then(response => response.json())
-        .then(data => {
-          setTimeout((_) => {
-            setLoadingModal(false)
-            if (data.statusCode === 0) {
-              resolve(true)
-              setStatusColor('success')
-            } else {
-              resolve(false)
-              setStatusColor('danger')
-            }
-
-            setStatusMessage(data.statusMessage)
-          }, 1000)
-
-        });
+    return new Promise( async (resolve) => {
+      const result = await deleteCategory({id : selectedCategory.id});
+      setLoadingModal(false)
+      if (result.statusCode === 0){
+        resolve(true)
+        setStatusColor('success')
+      }else{
+        resolve(false)
+        setStatusColor('danger')
+      }
+      setStatusMessage(result.statusMessage)
+      // window.location.reload();
     })
 
   }
