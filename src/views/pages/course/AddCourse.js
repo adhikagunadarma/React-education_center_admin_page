@@ -29,9 +29,13 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
-import Toaster from 'src/views/notifications/toaster/Toaster';
+import { useCourseService } from 'src/service/course';
+import { useCategoryService } from 'src/service/category';
 
 const AddCourse = () => {
+
+    const { getCategories } = useCategoryService()
+    const { addCourse } = useCourseService()
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
@@ -76,38 +80,25 @@ const AddCourse = () => {
             // setStatusColor('info')
         }
         if (categories.length === 0 ){//first time only
-            getCategories()
+            fetchDataCategories()
         }
-    }, [course,statusColor, statusMessage]);
+    }, [statusColor, statusMessage]);
 
-    function getCategories() {
-        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
+    function fetchDataCategories() {
         
         setLoadingModal(true)
-        return new Promise((resolve) => {
-          const baseEndpoint = "http://localhost:8080"
-          const pathEndpoint = "/api/educen/categories"
-          const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          };
-          fetch(baseEndpoint + pathEndpoint, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-              setTimeout((_) => {
-                setLoadingModal(false)
-                if (data.statusCode === 0) {
-                  resolve(true)
-                  setCategories(data.data)
-                } else {
-                  resolve(false)
-                  setStatusColor('danger')
-                  setStatusMessage(data.statusMessage)
-                }
-              }, 1000)
-    
-            });
-        })
+        return new Promise( async (resolve) => {
+            const result = await getCategories();
+            if (result.statusCode === 0) {
+              resolve(true)
+              setCategories(result.data)
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+              setStatusMessage(result.statusMessage)
+            }
+            setLoadingModal(false)
+          })
     
     
       }
@@ -121,57 +112,37 @@ const AddCourse = () => {
         }
         setLoadingModal(true)
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-        return new Promise((resolve) => {
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/course"
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-
-                    courseName: course.courseName,
+        return new Promise( async (resolve) => {
+            let request = {
+                courseName: course.courseName,
                     courseDescription: course.courseDescription,
                     courseThumbnail: course.courseThumbnail,
                     courseThumbnailName: course.courseThumbnailName,
-                    
                     courseTrailerFile: course.courseTrailerFile,
                     courseTrailerName: course.courseTrailerName,
-                    
                     courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
                     courseTrailerThumbnailName: course.courseTrailerThumbnailName,
-                    
                     courseMembership: course.courseMembership,
-                    // coursePublished: course.coursePublished,
-                    courseTeacher : loginInfo.id, // hardcode, should take teacher id from login
-
-                    courseCategory : courseCategory.map((category) => {
-                        return category.id
-                    }),
-                })
-            };
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                            history.push("/list-course");
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
-
-                });
+                    courseTeacher : loginInfo.id, 
+                    courseCategory : courseCategory
+            }
+            const result = await addCourse(request)
+                setLoadingModal(false)
+                if (result.statusCode === 0) {
+                    resolve(true)
+                    setStatusColor('success')
+                    history.push("/list-course");
+                } else {
+                    resolve(false)
+                    setStatusColor('danger')
+                }
+                setStatusMessage(result.statusMessage)
         })
 
 
     }
 
-    function addCategory(category){
+    function addCategoryPopup(category){
         setShowCategoryModal(false)
         if (courseCategory.includes(category)){
             setStatusColor('danger')
@@ -183,15 +154,9 @@ const AddCourse = () => {
             setStatusColor('success')
             setStatusColor(`Success adding category ${category.categoryName}`)
         }
-
-        // nanti aja pas submit
-        // course.courseCategory = courseCategory
-        // setCourse(course)
-        
     }
 
     function deleteCourseCategory(category){
-        
         const index = courseCategory.indexOf(category);
         if (index > -1) {
             courseCategory.splice(index, 1);
@@ -224,9 +189,7 @@ const AddCourse = () => {
                             setCourse({...course, courseTrailerThumbnailFile : fileData, courseTrailerThumbnailName : fileName})
                             break;
                     }
-
             } else {
-                
                     setStatusColor('danger')
                     setStatusMessage(warningFileLimit)
             }
@@ -437,7 +400,7 @@ const AddCourse = () => {
                             <CModalBody>
                             <CListGroup>
                             {categories.map((category, indexDelivery) => (
-                                <CListGroupItem action key={category.id} onClick={() => { addCategory(category) }}>{category.categoryName}</CListGroupItem>
+                                <CListGroupItem action key={category.id} onClick={() => { addCategoryPopup(category) }}>{category.categoryName}</CListGroupItem>
                             ))}
                             
                             </CListGroup>
