@@ -40,7 +40,9 @@ export function useAuth() {
                       let loginInfo = result.data.data[0]
                       sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
                       setAuthed(true);
-                      resolve(authed)
+                      // resolve(authed)
+                      
+                      resolve(true)
                     } else {
                       resolve(result.data.statusMessage)
                     }
