@@ -30,11 +30,17 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory,useParams } from "react-router-dom";
 import Toaster from 'src/views/notifications/toaster/Toaster';
+import { useCategoryService } from 'src/service/category';
+import { useCourseService } from 'src/service/course';
 
 const EditCourse = () => {
 
     
   const { id } = useParams();
+
+  
+  const { getCategories } = useCategoryService()
+  const { editCourse, getCourse } = useCourseService()
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
@@ -82,7 +88,7 @@ const EditCourse = () => {
 
         if (firstTimeLoad){
 
-            getCategories()
+            fetchDataCategories()
             getData()
             setFirstTimeLoad(false)
         }
@@ -93,65 +99,45 @@ const EditCourse = () => {
     function getData() {
 
         setLoadingModal(true)
-        return new Promise((resolve) => {
-          const baseEndpoint = "http://localhost:8080"
-          const pathEndpoint = "/api/educen/course/" + id
-          const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          };
-          fetch(baseEndpoint + pathEndpoint, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-              setTimeout((_) => {
-                setLoadingModal(false)
-                if (data.statusCode === 0) {
-                  resolve(true)
-                  
-                  setCourse(data.data)
-                  setCourseCategory(data.data.courseCategory)
-                  setStatusColor('success')
-
-                } else {
-                  resolve(false)
-                  // setStatusColor('danger')
-                }
-                // setStatusMessage(data.statusMessage)
-              }, 1000)
-    
-            });
+        return new Promise(async (resolve) => {
+            let request = {
+                id : id
+            }
+            const result = await getCourse(request)
+            setLoadingModal(false)
+            if (result.statusCode === 0) {
+              resolve(true)
+              
+              setCourse(result.data)
+              setCourseCategory(result.data.courseCategory)
+              setStatusColor('success')
+  
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+            }
+            setStatusMessage(result.statusMessage)
+      
         })
     
     
       }
 
-    function getCategories() {
-
+      function fetchDataCategories() {
+        
         setLoadingModal(true)
-        return new Promise((resolve) => {
-          const baseEndpoint = "http://localhost:8080"
-          const pathEndpoint = "/api/educen/categories"
-          const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          };
-          fetch(baseEndpoint + pathEndpoint, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-              setTimeout((_) => {
-                setLoadingModal(false)
-                if (data.statusCode === 0) {
-                  resolve(true)
-                  setCategories(data.data)
-                } else {
-                  resolve(false)
-                  setStatusColor('danger')
-                  setStatusMessage(data.statusMessage)
-                }
-              }, 1000)
-    
-            });
-        })
+        return new Promise( async (resolve) => {
+            const result = await getCategories();
+            if (result.statusCode === 0) {
+              resolve(true)
+              setCategories(result.data)
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+              setStatusMessage(result.statusMessage)
+            }
+            setLoadingModal(false)
+          })
     
     
       }
@@ -165,55 +151,32 @@ const EditCourse = () => {
         }
         setLoadingModal(true)
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-        return new Promise((resolve) => {
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/course/" + id
-            const requestOptions = {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-
-                    courseName: course.courseName,
+        return new Promise( async(resolve) => {
+            let request = {
+                courseName: course.courseName,
                     courseDescription: course.courseDescription,
                     courseThumbnail: course.courseThumbnail,
                     courseThumbnailName: course.courseThumbnailName,
-                    
                     courseTrailerFile: course.courseTrailerFile,
                     courseTrailerName: course.courseTrailerName,
-                    
                     courseTrailerThumbnailFile: course.courseTrailerThumbnailFile,
                     courseTrailerThumbnailName: course.courseTrailerThumbnailName,
-                    
                     courseMembership: course.courseMembership,
-                    // coursePublished: course.coursePublished,
-                    courseTeacher : loginInfo.id, // hardcode, should take teacher id from login
-
-                    courseCategory : courseCategory.map((category) => {
-                        if (category.id){
-                            return category.id
-                        }else{
-                            return category._id
-                        }
-                    }),
-                })
-            };
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                            history.push("/list-course");
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
-
-                });
+                    courseTeacher : loginInfo.id, 
+                    courseCategory : courseCategory
+            }
+            const result = await editCourse(request)
+                setLoadingModal(false)
+                if (result.statusCode === 0) {
+                    resolve(true)
+                    setStatusColor('success')
+                    history.push("/list-course");
+                } else {
+                    resolve(false)
+                    setStatusColor('danger')
+                }
+                setStatusMessage(result.statusMessage)
+        
         })
 
 
