@@ -25,7 +25,7 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
-import Login from '../login/Login';
+import { useCourseService } from 'src/service/course';
 const getBadge = status => {
     switch (status) {
         case 'Active': return 'success'
@@ -41,6 +41,8 @@ const fields = ['courseThumbnail', 'courseName', 'courseCategory', 'courseMember
 const ListCourse = () => {
 
     const history = useHistory();
+    
+    const { getCoursesByTeacher, deleteCourse, editCourse } = useCourseService()
 
     const [loadingModal, setLoadingModal] = React.useState(false)
     const [courses, setCourses] = React.useState([])
@@ -84,40 +86,20 @@ const ListCourse = () => {
     function getData() {
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         setLoadingModal(true)
-        return new Promise((resolve) => {
-            //default get listcourse will fetched by teacher id because its their login info
+        return new Promise( async (resolve) => {
             const idTeacher = loginInfo.id
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
-            const requestOptions = {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-            };
-            fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            data.data.forEach(element => {
-                                
-                                let courseCategory = []
-                                element.courseCategory.map (category => {
-                                        courseCategory.push(category.categoryName)
-                                  
-                                })
-                                element.courseCategory = courseCategory
-                            });
-                            setCourses(data.data)
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                            setStatusMessage(data.statusMessage)
-                        }
-                    }, 1000)
-
-                });
+            const result = await getCoursesByTeacher({id : idTeacher});
+            console.log(result)
+            if (result.statusCode === 0) {
+              resolve(true)
+              setCourses(result.data)
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+              setStatusMessage(result.statusMessage)
+            }
+            setLoadingModal(false)
+         
         })
 
 
@@ -135,60 +117,35 @@ const ListCourse = () => {
     function confirmVerification(type) {
         setVerificationModal(null)
         setLoadingModal(true)
-        return new Promise((resolve) => {
+        return new Promise( async (resolve) => {
             
-            const baseEndpoint = "http://localhost:8080"
-            const pathEndpoint = "/api/educen/course/" + selectedCourse.id
+
             if (type==='Delete'){
-                const requestOptions = {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                };
-              
-                fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
-
-                });
+                const result = await deleteCourse({id : selectedCourse.id});
+              setLoadingModal(false)
+              if (result.statusCode === 0){
+                resolve(true)
+                setStatusColor('success')
+              }else{
+                resolve(false)
+                setStatusColor('danger')
+              }
+              // setStatusMessage(result.statusMessage)
+              window.location.reload();
             }
             if (type==='Publish'){
-                const requestOptions = {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        coursePublished: true,
-                    })
-                };
-              
-                fetch(baseEndpoint + pathEndpoint, requestOptions)
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout((_) => {
-                        setLoadingModal(false)
-                        if (data.statusCode === 0) {
-                            resolve(true)
-                            setStatusColor('success')
-                        } else {
-                            resolve(false)
-                            setStatusColor('danger')
-                        }
-
-                        setStatusMessage(data.statusMessage)
-                    }, 1000)
-
-                });
+                const result = await editCourse({id : selectedCourse.id, coursePublished: true});
+                setLoadingModal(false)
+                if (result.statusCode === 0){
+                  resolve(true)
+                  setStatusColor('success')
+                }else{
+                  resolve(false)
+                  setStatusColor('danger')
+                }
+                // setStatusMessage(result.statusMessage)
+                window.location.reload();
+               
             }
      
         })
