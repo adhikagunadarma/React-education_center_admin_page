@@ -8,7 +8,6 @@ import {
     CCol,
     CForm,
     CFormGroup,
-    CFormText,
     CTextarea,
     CInput,
     CLabel,
@@ -21,7 +20,6 @@ import {
     CToastBody,
     CInvalidFeedback,
     CSwitch,
-    CInputFile,
     CModalHeader,
     CModalTitle,
     CListGroup,
@@ -31,61 +29,44 @@ import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
 import { useCourseService } from 'src/service/course';
 import { useCategoryService } from 'src/service/category';
+import { useFileService, useToastService } from 'src/service/utils';
 
 const AddCourse = () => {
 
     const { getCategories } = useCategoryService()
-    const { addCourse } = useCourseService()
+    const { addCourse } = useCourseService()    
+    const { fileToBase64 } = useFileService()
+    const {  
+      statusMessage,
+      statusColor,   
+      setStatusColor,
+      setStatusMessage,
+      addToast,
+      toasters} = useToastService()
 
-    const filelimitSize = 50 * 1024 * 1024;
-    const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
     const history = useHistory();
-    const [loadingModal, setLoadingModal] = React.useState(false)
     
-    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
     const [course, setCourse] = React.useState({})
     const [categories, setCategories] = React.useState([]) // all categories
     const [courseCategory, setCourseCategory] = React.useState([]) // all categories
 
-    const [statusColor, setStatusColor] = React.useState('info')
-    const [statusMessage, setStatusMessage] = React.useState('')
+    const [loadingModal, setLoadingModal] = React.useState(false)
+    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
     const [validationError, setValidationError] = React.useState(false)
 
-    const [position, setPosition] = React.useState('bottom-center')
-    const [autohide, setAutohide] = React.useState(true)
-    const [autohideValue, setAutohideValue] = React.useState(5000)
-    const [closeButton, setCloseButton] = React.useState(true)
-    const [fade, setFade] = React.useState(true)
-    const [toasts, setToasts] = React.useState([])
-
-    const addToast = () => {
-        setToasts([
-            ...toasts,
-            { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-        ])
-    }
-    const toasters = (() => {
-        return toasts.reduce((toasters, toast) => {
-            toasters[toast.position] = toasters[toast.position] || []
-            toasters[toast.position].push(toast)
-            return toasters
-        }, {})
-    })
-
+    const filelimitSize = 50 * 1024 * 1024;
+    const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
     useEffect(() => {
         if (statusMessage !== '') {
-            addToast() // kalo abis ada perubahan status message / color, baru add tiast
-            // setStatusMessage('')
-            // setStatusColor('info')
+            addToast() 
         }
-        if (categories.length === 0 ){//first time only
+        if (categories.length === 0 ){
             fetchDataCategories()
         }
     }, [statusColor, statusMessage]);
 
     function fetchDataCategories() {
-        
         setLoadingModal(true)
         return new Promise( async (resolve) => {
             const result = await getCategories();
@@ -99,14 +80,10 @@ const AddCourse = () => {
             }
             setLoadingModal(false)
           })
-    
-    
       }
 
     function submitData() {
         if (course.courseName === '' || course.courseDescription === '') {
-            // setStatusColor("warning")
-            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
             setValidationError(true)
             return
         }
@@ -138,8 +115,6 @@ const AddCourse = () => {
                 }
                 setStatusMessage(result.statusMessage)
         })
-
-
     }
 
     function addCategoryPopup(category){
@@ -148,7 +123,6 @@ const AddCourse = () => {
             setStatusColor('danger')
             setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
         }else{
-            
             courseCategory.push(category)
             setCourseCategory(courseCategory)
             setStatusColor('success')
@@ -166,7 +140,6 @@ const AddCourse = () => {
         setStatusColor('success')
         setStatusColor(`Success delete category ${category.categoryName}`)
     }
-
 
     async function getDocumentFromFile($event, type) {
         if ($event.target.files[0]) {
@@ -195,22 +168,9 @@ const AddCourse = () => {
             }
         }
     }
-
-    function fileToBase64(file) {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-        })
-
-    }
-
-
-
     return (
         <>
             <CRow>
-
                 <CCol xs="12" md="12">
                     <CCard>
                         <CCardHeader>
