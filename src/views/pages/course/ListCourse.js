@@ -26,6 +26,7 @@ import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
 import { useCourseService } from 'src/service/course';
+import { useToastService } from 'src/service/utils';
 const getBadge = status => {
     switch (status) {
         case 'Active': return 'success'
@@ -40,47 +41,28 @@ const fields = ['courseThumbnail', 'courseName', 'courseCategory', 'courseMember
 
 const ListCourse = () => {
 
-    const history = useHistory();
-    
     const { getCoursesByTeacher, deleteCourse, editCourse } = useCourseService()
+    const {  
+        statusMessage,
+        statusColor,   
+        setStatusColor,
+        setStatusMessage,
+        addToast,
+        toasters} = useToastService()
+
+    const history = useHistory();
+   
+    const [courses, setCourses] = React.useState([])
+    const [selectedCourse, setSelectedCourse] = React.useState('')
 
     const [loadingModal, setLoadingModal] = React.useState(false)
-    const [courses, setCourses] = React.useState([])
-
-    const [position, setPosition] = React.useState('top-center')
-    const [autohide, setAutohide] = React.useState(true)
-    const [autohideValue, setAutohideValue] = React.useState(5000)
-    const [closeButton, setCloseButton] = React.useState(true)
-    const [fade, setFade] = React.useState(true)
-    const [statusColor, setStatusColor] = React.useState('info')
-    const [statusMessage, setStatusMessage] = React.useState('')
-
-    const [selectedCourse, setSelectedCourse] = React.useState('')
     const [verificationModal, setVerificationModal] = React.useState(null)
 
-    const [toasts, setToasts] = React.useState([])
-
-    const addToast = () => {
-        setToasts([
-            ...toasts,
-            { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-        ])
-    }
-    const toasters = (() => {
-        return toasts.reduce((toasters, toast) => {
-            toasters[toast.position] = toasters[toast.position] || []
-            toasters[toast.position].push(toast)
-            return toasters
-        }, {})
-    })()
-
     useEffect(() => {
-        
         getData()
         if (statusMessage != '') {
             addToast() // kalo abis ada perubahan status message / color, baru add tiast
         }
-
     }, [statusColor, statusMessage]);
 
     function getData() {
@@ -99,10 +81,7 @@ const ListCourse = () => {
               setStatusMessage(result.statusMessage)
             }
             setLoadingModal(false)
-         
         })
-
-
     }
 
     function goToEditCourse(data, index) {
@@ -118,8 +97,6 @@ const ListCourse = () => {
         setVerificationModal(null)
         setLoadingModal(true)
         return new Promise( async (resolve) => {
-            
-
             if (type==='Delete'){
                 const result = await deleteCourse({id : selectedCourse.id});
               setLoadingModal(false)
@@ -130,7 +107,6 @@ const ListCourse = () => {
                 resolve(false)
                 setStatusColor('danger')
               }
-              // setStatusMessage(result.statusMessage)
               window.location.reload();
             }
             if (type==='Publish'){
@@ -143,18 +119,13 @@ const ListCourse = () => {
                   resolve(false)
                   setStatusColor('danger')
                 }
-                // setStatusMessage(result.statusMessage)
                 window.location.reload();
-               
             }
-     
         })
-
     }
 
     return (
         <>
-
             <CRow>
                 <CCol sm="12" lg="12">
                     <CCard>
@@ -199,8 +170,6 @@ const ListCourse = () => {
                                                     null
 
                                                     }
-                                              
-
                                                     <CButton
                                                         color="danger"
                                                         variant="outline"
@@ -211,7 +180,6 @@ const ListCourse = () => {
                                                     >
                                                         Delete
                                                     </CButton>
-
                                                 {
                                                     item.coursePublished === false ?
                                                     <CButton
@@ -226,7 +194,6 @@ const ListCourse = () => {
                                                 </CButton> :
                                                     null
                                                 }
-                                                  
                                                 </td>
                                             )
                                         },
