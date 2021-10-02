@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import {
-  CBadge,
   CCard,
   CCardBody,
   CCardHeader,
@@ -26,44 +25,28 @@ import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
 import { useCategoryService } from 'src/service/category';
+import { useToastService } from 'src/service/utils';
 
 const fields = ['categoryThumbnail', 'categoryName', 'categoryDescription', 'action']
 
 const ListCategory = () => {
 
+  const { getCategories, deleteCategory } = useCategoryService()
+  const {  
+    statusMessage,
+    statusColor,   
+    setStatusColor,
+    setStatusMessage,
+    addToast,
+    toasters} = useToastService()
+
   const history = useHistory();
   
-const { getCategories, deleteCategory } = useCategoryService()
-
-  const [loadingModal, setLoadingModal] = React.useState(false)
   const [categories, setCategories] = React.useState([])
-
-  const [position, setPosition] = React.useState('top-center')
-  const [autohide, setAutohide] = React.useState(true)
-  const [autohideValue, setAutohideValue] = React.useState(5000)
-  const [closeButton, setCloseButton] = React.useState(true)
-  const [fade, setFade] = React.useState(true)
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
-
   const [selectedCategory, setSelectedCategory] = React.useState('')
+  
+  const [loadingModal, setLoadingModal] = React.useState(false)
   const [deleteModal, setDeleteModal] = React.useState(false)
-
-  const [toasts, setToasts] = React.useState([])
-
-  const addToast = () => {
-    setToasts([
-      ...toasts,
-      { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-    ])
-  }
-  const toasters = (() => {
-    return toasts.reduce((toasters, toast) => {
-      toasters[toast.position] = toasters[toast.position] || []
-      toasters[toast.position].push(toast)
-      return toasters
-    }, {})
-  })()
 
   useEffect(() => {
     getData()
@@ -88,8 +71,6 @@ const { getCategories, deleteCategory } = useCategoryService()
       }
       setLoadingModal(false)
     })
-
-
   }
 
   function goToEditCategory(data, index) {
@@ -114,15 +95,13 @@ const { getCategories, deleteCategory } = useCategoryService()
         resolve(false)
         setStatusColor('danger')
       }
-      setStatusMessage(result.statusMessage)
-      // window.location.reload();
+      window.location.reload();
     })
 
   }
 
   return (
     <>
-
       <CRow>
         <CCol sm="12" lg="12">
           <CCard>
