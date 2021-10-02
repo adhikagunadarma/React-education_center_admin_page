@@ -49,9 +49,9 @@ return new Promise(async(resolve) => {
     const pathEndpoint = "category"
     const requestBody = {
         categoryName: req.categoryName,
-          categoryDescription: req.categoryDesc,
-          categoryThumbnail: req.categoryThumbnail,
-          categoryThumbnailName: req.categoryThumbnailName
+        categoryDescription: req.categoryDesc,
+        categoryThumbnail: req.categoryThumbnail,
+        categoryThumbnailName: req.categoryThumbnailName
     }
     try {
         const result = await axios.post(baseEndpoint + pathEndpoint, requestBody)
