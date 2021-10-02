@@ -8,7 +8,6 @@ import {
   CCol,
   CForm,
   CFormGroup,
-  CFormText,
   CTextarea,
   CInput,
   CLabel,
@@ -20,56 +19,42 @@ import {
   CToastHeader,
   CToastBody,
   CInvalidFeedback,
-  CValidFeedback
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
 import { useCategoryService } from 'src/service/category';
+import { useToastService, useFileService } from 'src/service/utils';
 
 const EditCategory = () => {
 
-  const filelimitSize = 5242880;
-  const { id } = useParams();
-  
   const { editCategory, getCategory } = useCategoryService()
+  const { fileToBase64 } = useFileService()
+  const {  
+    statusMessage,
+    statusColor,   
+    setStatusColor,
+    setStatusMessage,
+    addToast,
+    toasters} = useToastService()
 
   const history = useHistory();
-  const [loadingModal, setLoadingModal] = React.useState(false)
+  const { id } = useParams();
+  
   const [categoryName, setCategoryName] = React.useState('')
   const [categoryDesc, setCategoryDesc] = React.useState('')
   const [categoryThumbnail, setCategoryThumbnail] = React.useState('')
   const [categoryThumbnailName, setCategoryThumbnailName] = React.useState('')
 
-  const [position, setPosition] = React.useState('bottom-center')
-  const [autohide, setAutohide] = React.useState(true)
-  const [autohideValue, setAutohideValue] = React.useState(5000)
-  const [closeButton, setCloseButton] = React.useState(true)
-  const [fade, setFade] = React.useState(true)
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
+  const [loadingModal, setLoadingModal] = React.useState(false)
   const [validationError, setValidationError] = React.useState(false)
 
-  const [toasts, setToasts] = React.useState([])
+  const filelimitSize = 50 * 1024 * 1024;
+  const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
-  const addToast = () => {
-    setToasts([
-      ...toasts,
-      { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-    ])
-  }
-  const toasters = (() => {
-    return toasts.reduce((toasters, toast) => {
-      toasters[toast.position] = toasters[toast.position] || []
-      toasters[toast.position].push(toast)
-      return toasters
-    }, {})
-  })()
 
   useEffect(() => {
     if (statusMessage != '') {
       addToast() // kalo abis ada perubahan status message / color, baru add tiast
-      // setStatusMessage('')
-      // setStatusColor('info')
     }
     if (id != null) {
       getData()
@@ -107,8 +92,6 @@ const EditCategory = () => {
 
   function saveData() {
     if (categoryName === '' || categoryDesc === '') {
-      // setStatusColor("warning")
-      // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
       setValidationError(true)
       return
     }
@@ -133,9 +116,7 @@ const EditCategory = () => {
       }
       setStatusMessage(result.statusMessage)
   
-  })
-
-
+    })
   }
 
 
@@ -152,20 +133,10 @@ const EditCategory = () => {
 
         })
       } else {
-        this.publicParam.presentAlert("Warning", this.warningFileLimit)
+        this.publicParam.presentAlert("Warning", warningFileLimit)
       }
     }
   }
-
-  function fileToBase64(file) {
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-    })
-
-  }
-
 
   return (
     <>
