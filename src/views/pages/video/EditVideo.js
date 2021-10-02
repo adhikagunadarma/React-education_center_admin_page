@@ -24,54 +24,38 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
 import { useVideoService } from 'src/service/video';
+import { useCourseService } from 'src/service/course';
+import { useFileService, useToastService } from 'src/service/utils';
 
 const EditVideo = () => {
 
-    
+    const { editVideo, getVideo } = useVideoService()
+    const { getCoursesByTeacher} = useCourseService()
+    const { fileToBase64 } = useFileService()
+    const {  
+      statusMessage,
+      statusColor,   
+      setStatusColor,
+      setStatusMessage,
+      addToast,
+      toasters} = useToastService()
+      
+    const history  = useHistory();
+    const { id } = useParams();
+
+    const [video, setVideo] = React.useState({})
+    const [courses, setCourses] = React.useState([]) 
+
+    const [loadingModal, setLoadingModal] = React.useState(false)
+    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
+    const [validationError, setValidationError] = React.useState(false)
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
-    const history  = useHistory();
-    const { id } = useParams();
-    const { editVideo, getVideo } = useVideoService()
-
-    const [loadingModal, setLoadingModal] = React.useState(false)
-    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
-    const [video, setVideo] = React.useState({})
-    const [courses, setCourses] = React.useState([]) // all courses
-
-    const [statusColor, setStatusColor] = React.useState('info')
-    const [statusMessage, setStatusMessage] = React.useState('')
-    const [validationError, setValidationError] = React.useState(false)
-
-    const [position, setPosition] = React.useState('bottom-center')
-    const [autohide, setAutohide] = React.useState(true)
-    const [autohideValue, setAutohideValue] = React.useState(5000)
-    const [closeButton, setCloseButton] = React.useState(true)
-    const [fade, setFade] = React.useState(true)
-    const [toasts, setToasts] = React.useState([])
-
-    const addToast = () => {
-        setToasts([
-            ...toasts,
-            { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-        ])
-    }
-    const toasters = (() => {
-        return toasts.reduce((toasters, toast) => {
-            toasters[toast.position] = toasters[toast.position] || []
-            toasters[toast.position].push(toast)
-            return toasters
-        }, {})
-    })
-
-
     useEffect(() => {
         if (statusMessage !== '') {
-            addToast() // kalo abis ada perubahan status message / color, baru add tiast
-            // setStatusMessage('')
-            // setStatusColor('info')
+            addToast() 
         }
 
         if (firstTimeLoad){
@@ -83,7 +67,6 @@ const EditVideo = () => {
     }, [video,statusColor, statusMessage]);
 
     function getData() {
-
         setLoadingModal(true)
         return new Promise( async (resolve) => {
           let request = {
@@ -93,52 +76,34 @@ const EditVideo = () => {
           setLoadingModal(false)
           if (result.statusCode === 0) {
             resolve(true)
-            
             setVideo(result.data)
             setStatusColor('success')
-
           } else {
             resolve(false)
             setStatusColor('danger')
           }
           setStatusMessage(result.statusMessage)
         })
-    
-    
       }
 
-    function getCourses() {
-    let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-    const idTeacher = loginInfo.id
+      function getCourses() {
+        let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         setLoadingModal(true)
-        return new Promise((resolve) => {
-          const baseEndpoint = "http://localhost:8080"
-          const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
-          const requestOptions = {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' },
-          };
-          fetch(baseEndpoint + pathEndpoint, requestOptions)
-            .then(response => response.json())
-            .then(data => {
-              setTimeout((_) => {
-                setLoadingModal(false)
-                if (data.statusCode === 0) {
-                  resolve(true)
-                  setCourses(data.data)
-                } else {
-                  resolve(false)
-                  setStatusColor('danger')
-                  setStatusMessage(data.statusMessage)
-                }
-              }, 1000)
-    
-            });
+        return new Promise( async (resolve) => {
+            const idTeacher = loginInfo.id
+            const result = await getCoursesByTeacher({id : idTeacher});
+            console.log(result)
+            if (result.statusCode === 0) {
+              resolve(true)
+              setCourses(result.data)
+            } else {
+              resolve(false)
+              setStatusColor('danger')
+              setStatusMessage(result.statusMessage)
+            }
+            setLoadingModal(false)
         })
-    
-    
       }
-
     function submitData() {
         if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoThumbnail === undefined || !video.videoCourse || video.videoCourse == "none") {
             setStatusColor("warning")
@@ -169,10 +134,7 @@ const EditVideo = () => {
                 setStatusColor('danger')
             }
             setStatusMessage(result.statusMessage)
-        
         })
-
-
     }
 
     async function getDocumentFromFile($event, type) {
@@ -191,9 +153,7 @@ const EditVideo = () => {
                             
                             setVideo({...video, videoFile : fileData, videoFileName : fileName})
                             break;
-                     
                     }
-
             } else {
                     setStatusColor('danger')
                     setStatusMessage(warningFileLimit)
@@ -201,21 +161,9 @@ const EditVideo = () => {
         }
     }
 
-    function fileToBase64(file) {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-        })
-
-    }
-
-
-
     return (
         <>
             <CRow>
-
                 <CCol xs="12" md="12">
                     <CCard>
                         <CCardHeader>
