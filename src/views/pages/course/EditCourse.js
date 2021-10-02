@@ -8,7 +8,6 @@ import {
     CCol,
     CForm,
     CFormGroup,
-    CFormText,
     CTextarea,
     CInput,
     CLabel,
@@ -21,7 +20,6 @@ import {
     CToastBody,
     CInvalidFeedback,
     CSwitch,
-    CInputFile,
     CModalHeader,
     CModalTitle,
     CListGroup,
@@ -29,65 +27,44 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory,useParams } from "react-router-dom";
-import Toaster from 'src/views/notifications/toaster/Toaster';
 import { useCategoryService } from 'src/service/category';
 import { useCourseService } from 'src/service/course';
+import { useFileService, useToastService } from 'src/service/utils';
 
 const EditCourse = () => {
 
+    const { getCategories } = useCategoryService()
+    const { editCourse, getCourse } = useCourseService()
+    const { fileToBase64 } = useFileService()
+    const {  
+      statusMessage,
+      statusColor,   
+      setStatusColor,
+      setStatusMessage,
+      addToast,
+      toasters} = useToastService()
     
-  const { id } = useParams();
-
-  
-  const { getCategories } = useCategoryService()
-  const { editCourse, getCourse } = useCourseService()
-
-    const filelimitSize = 50 * 1024 * 1024;
-    const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
+    const { id } = useParams();
     const history = useHistory();
-    const [loadingModal, setLoadingModal] = React.useState(false)
-    
-    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
-    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
+
     const [course, setCourse] = React.useState({})
     const [categories, setCategories] = React.useState([]) // all categories
     const [courseCategory, setCourseCategory] = React.useState([]) // all categories
 
-    const [statusColor, setStatusColor] = React.useState('info')
-    const [statusMessage, setStatusMessage] = React.useState('')
+    const [loadingModal, setLoadingModal] = React.useState(false)
+    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
+    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
     const [validationError, setValidationError] = React.useState(false)
 
-    const [position, setPosition] = React.useState('bottom-center')
-    const [autohide, setAutohide] = React.useState(true)
-    const [autohideValue, setAutohideValue] = React.useState(5000)
-    const [closeButton, setCloseButton] = React.useState(true)
-    const [fade, setFade] = React.useState(true)
-    const [toasts, setToasts] = React.useState([])
-
-    const addToast = () => {
-        setToasts([
-            ...toasts,
-            { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-        ])
-    }
-    const toasters = (() => {
-        return toasts.reduce((toasters, toast) => {
-            toasters[toast.position] = toasters[toast.position] || []
-            toasters[toast.position].push(toast)
-            return toasters
-        }, {})
-    })
-
+    const filelimitSize = 50 * 1024 * 1024;
+    const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
     useEffect(() => {
         if (statusMessage !== '') {
-            addToast() // kalo abis ada perubahan status message / color, baru add tiast
-            // setStatusMessage('')
-            // setStatusColor('info')
+            addToast()
         }
 
         if (firstTimeLoad){
-
             fetchDataCategories()
             getData()
             setFirstTimeLoad(false)
@@ -97,7 +74,6 @@ const EditCourse = () => {
 
 
     function getData() {
-
         setLoadingModal(true)
         return new Promise(async (resolve) => {
             let request = {
@@ -107,7 +83,6 @@ const EditCourse = () => {
             setLoadingModal(false)
             if (result.statusCode === 0) {
               resolve(true)
-              
               setCourse(result.data)
               setCourseCategory(result.data.courseCategory)
               setStatusColor('success')
@@ -117,10 +92,7 @@ const EditCourse = () => {
               setStatusColor('danger')
             }
             setStatusMessage(result.statusMessage)
-      
         })
-    
-    
       }
 
       function fetchDataCategories() {
@@ -144,8 +116,6 @@ const EditCourse = () => {
 
     function submitData() {
         if (course.courseName === '' || course.courseDescription === '') {
-            // setStatusColor("warning")
-            // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
             setValidationError(true)
             return
         }
@@ -153,6 +123,7 @@ const EditCourse = () => {
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         return new Promise( async(resolve) => {
             let request = {
+                id : id,
                 courseName: course.courseName,
                     courseDescription: course.courseDescription,
                     courseThumbnail: course.courseThumbnail,
@@ -203,7 +174,6 @@ const EditCourse = () => {
     }
 
     function deleteCourseCategory(category){
-        
         const index = courseCategory.indexOf(category);
         if (index > -1) {
             courseCategory.splice(index, 1);
@@ -241,34 +211,19 @@ const EditCourse = () => {
                             break;
                     }
                     setCourse(course)
-                    // the object is updated, but the ui is not rerender : thats the problem
-                    
                     setStatusColor('success')
                     setStatusColor(`Success add file`)
 
             } else {
-                
                     setStatusColor('danger')
                     setStatusMessage(warningFileLimit)
             }
         }
     }
 
-    function fileToBase64(file) {
-        return new Promise(resolve => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-        })
-
-    }
-
-
-
     return (
         <>
             <CRow>
-
                 <CCol xs="12" md="12">
                     <CCard>
                         <CCardHeader>
@@ -317,11 +272,6 @@ const EditCourse = () => {
                                         <CLabel htmlFor="categoryInput">Course Thumbnail</CLabel>
                                     </CCol>
                                     <CCol xs="12" md="9">
-                                    {/* <CInputFile id="file-input" name="file-input" className="custom-file-input" id="customFile" onChange={(event) => {
-                                                getDocumentFromFile(event, 'thumbnail')
-                                            }} accept="image/*" /> */}
-
-
                                         <div className="custom-file">
                                        
                                             <input type="file" className="custom-file-input" id="customFile" onChange={(event) => {
@@ -408,32 +358,12 @@ const EditCourse = () => {
                       color="info"
                       checked={course.courseMembership}
                       shape="pill"
-                      
                       onClick={(event) => {
-
                         setCourse({...course, courseMembership : event.target.checked})
                     }}
                     />         
                                     </CCol>
                                 </CFormGroup>
-                                {/* <CFormGroup row>
-                                    <CCol md="3">
-                                        <CLabel htmlFor="categoryInput">Published</CLabel>
-                                    </CCol>
-                                    <CCol xs="12" md="9">
-                                    <CSwitch
-                      className="mr-1"
-                      color="info"
-                      checked={course.coursePublished}
-                      shape="pill"
-                      onClick={(event) => {
-                        
-                        setCourse({...course, coursePublished : event.target.checked})
-                    }}
-                    />         
-                                    </CCol>
-                                </CFormGroup> */}
-                       
 
                             </CForm>
                         </CCardBody>
