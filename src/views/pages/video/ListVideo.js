@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react'
 import {
-  CBadge,
   CCard,
   CCardBody,
   CCardHeader,
@@ -22,97 +21,65 @@ import {
   CImg,
   CSelect
 } from '@coreui/react'
-
 import CIcon from '@coreui/icons-react'
-
 import { useHistory } from "react-router-dom";
 import { useVideoService } from 'src/service/video';
+import { useCourseService } from 'src/service/course';
+import { useToastService } from 'src/service/utils';
 
 const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseName', 'action']
-
 
 const ListVideo = () => {
 
 const history = useHistory();
 
 const { getVideosByCourse, deleteVideo } = useVideoService()
+const { getCoursesByTeacher} = useCourseService()
+const {  
+  statusMessage,
+  statusColor,   
+  setStatusColor,
+  setStatusMessage,
+  addToast,
+  toasters} = useToastService()
   
-const [loadingModal, setLoadingModal] = React.useState(false)
 const [videos, setVideos] = React.useState([])
 const [courses, setCourses] = React.useState([]) // all courses
 const [selectedCourse, setSelectedCourse] = React.useState('') // all courses
-
-
-const [position, setPosition] = React.useState('top-center')
-const [autohide, setAutohide] = React.useState(true)
-const [autohideValue, setAutohideValue] = React.useState(5000)
-const [closeButton, setCloseButton] = React.useState(true)
-const [fade, setFade] = React.useState(true)
-const [statusColor , setStatusColor] = React.useState('info')
-const [statusMessage , setStatusMessage] = React.useState('')
-
 const [selectedVideo, setSelectedVideo] = React.useState('')
+
+const [loadingModal, setLoadingModal] = React.useState(false)
 const [deleteModal, setDeleteModal] = React.useState(false)
-
-const [toasts, setToasts] = React.useState([])
-
-const addToast = () => {
-  setToasts([
-    ...toasts, 
-    { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-  ])
-}
-const toasters = (()=>{
-  return toasts.reduce((toasters, toast) => {
-    toasters[toast.position] = toasters[toast.position] || []
-    toasters[toast.position].push(toast)
-    return toasters
-  }, {})
-})()
 
 useEffect(() => {
   if (statusMessage != ''){
-    addToast() // kalo abis ada perubahan status message / color, baru add tiast
+    addToast() 
   }
 
-  if (courses.length === 0 ){//first time only
+  if (courses.length === 0 ){
     getCourses()
   }
 
 }, [selectedCourse,statusColor,statusMessage]);
 
-function getCourses() {
-  let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-  const idTeacher = loginInfo.id
-  setLoadingModal(true)
- 
-  return new Promise((resolve) => {
-    const baseEndpoint = "http://localhost:8080"
-    const pathEndpoint = "/api/educen/courses/teacher/"+idTeacher
-    const requestOptions = {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-    };
-    fetch(baseEndpoint + pathEndpoint, requestOptions)
-      .then(response => response.json())
-      .then(data => {
-        setTimeout((_) => {
-          setLoadingModal(false)
-          if (data.statusCode === 0) {
-            resolve(true)
-            setCourses(data.data)
-          } else {
-            resolve(false)
-            setStatusColor('danger')
-            setStatusMessage(data.statusMessage)
-          }
-        }, 1000)
-
-      });
-  })
-
-
-}
+  function getCourses() {
+    let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
+    setLoadingModal(true)
+    return new Promise( async (resolve) => {
+        const idTeacher = loginInfo.id
+        const result = await getCoursesByTeacher({id : idTeacher});
+        console.log(result)
+        if (result.statusCode === 0) {
+          resolve(true)
+          setCourses(result.data)
+        } else {
+          resolve(false)
+          setStatusColor('danger')
+          setStatusMessage(result.statusMessage)
+        }
+        setLoadingModal(false)
+    })
+  }
 
  async function getData(id) {
   if (!id || id == "none"){
@@ -131,8 +98,6 @@ function getCourses() {
     }
     setLoadingModal(false)
   })
-
-
 }
 
 function goToEditVideo(data,index){
@@ -147,7 +112,6 @@ function deleteData(data,index){
 function confirmDelete(){
   setDeleteModal(false)
   setLoadingModal(true)
-
   return new Promise(async(resolve) => {
       const result = await deleteVideo({id : selectedVideo.id});
               setLoadingModal(false)
@@ -158,7 +122,6 @@ function confirmDelete(){
                 resolve(false)
                 setStatusColor('danger')
               }
-              // setStatusMessage(result.statusMessage)
               window.location.reload();
       
   })
@@ -167,7 +130,6 @@ function confirmDelete(){
 
   return (
     <>
-     
       <CRow>
         <CCol sm="12" lg="12">
           <CCard>
