@@ -25,40 +25,25 @@ import {
   CToastBody,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
+import { useToastService } from 'src/service/utils';
 
 const Login = () => {
 
   const history = useHistory();
-  const { login } = useAuth()
+  const { login } = useAuth()  
+  const {  
+    statusMessage,
+    statusColor,   
+    setStatusColor,
+    setStatusMessage,
+    addToast,
+    toasters} = useToastService()
   
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
 
   const [validationError, setValidationError] = React.useState(false)
   const [loadingModal, setLoadingModal] = React.useState(false)
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
-
-  const [position, setPosition] = React.useState('bottom-center')
-  const [autohide, setAutohide] = React.useState(true)
-  const [autohideValue, setAutohideValue] = React.useState(5000)
-  const [closeButton, setCloseButton] = React.useState(true)
-  const [fade, setFade] = React.useState(true)
-  const [toasts, setToasts] = React.useState([])
-
-  const addToast = () => {
-    setToasts([
-      ...toasts,
-      { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-    ])
-  }
-  const toasters = (() => {
-    return toasts.reduce((toasters, toast) => {
-      toasters[toast.position] = toasters[toast.position] || []
-      toasters[toast.position].push(toast)
-      return toasters
-    }, {})
-  })()
 
   useEffect(() => {
     if (statusMessage != '') {
