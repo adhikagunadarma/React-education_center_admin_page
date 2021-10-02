@@ -8,7 +8,6 @@ import {
   CCol,
   CForm,
   CFormGroup,
-  CFormText,
   CTextarea,
   CInput,
   CLabel,
@@ -23,60 +22,42 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
-import Toaster from 'src/views/notifications/toaster/Toaster';
 import { useCategoryService } from 'src/service/category';
+import { useFileService, useToastService } from 'src/service/utils';
 
 const AddCategory = () => {
 
-  
-const { addCategory } = useCategoryService()
+  const { addCategory } = useCategoryService()
+  const { fileToBase64 } = useFileService()
+  const {  
+    statusMessage,
+    statusColor,   
+    setStatusColor,
+    setStatusMessage,
+    addToast,
+    toasters} = useToastService()
 
-  const filelimitSize = 50 * 1024 * 1024;
-  const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
   const history = useHistory();
-  const [loadingModal, setLoadingModal] = React.useState(false)
+
   const [categoryName, setCategoryName] = React.useState('')
   const [categoryDesc, setCategoryDesc] = React.useState('')
   const [categoryThumbnail, setCategoryThumbnail] = React.useState('')
   const [categoryThumbnailName, setCategoryThumbnailName] = React.useState('')
 
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
+  const [loadingModal, setLoadingModal] = React.useState(false)
   const [validationError, setValidationError] = React.useState(false)
 
-  const [position, setPosition] = React.useState('bottom-center')
-  const [autohide, setAutohide] = React.useState(true)
-  const [autohideValue, setAutohideValue] = React.useState(5000)
-  const [closeButton, setCloseButton] = React.useState(true)
-  const [fade, setFade] = React.useState(true)
-  const [toasts, setToasts] = React.useState([])
-
-  const addToast = () => {
-    setToasts([
-      ...toasts,
-      { position, autohide: autohide && autohideValue, closeButton, fade, statusMessage, statusColor }
-    ])
-  }
-  const toasters = (() => {
-    return toasts.reduce((toasters, toast) => {
-      toasters[toast.position] = toasters[toast.position] || []
-      toasters[toast.position].push(toast)
-      return toasters
-    }, {})
-  })()
+  const filelimitSize = 50 * 1024 * 1024;
+  const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
   useEffect(() => {
     if (statusMessage != '') {
       addToast() // kalo abis ada perubahan status message / color, baru add tiast
-      // setStatusMessage('')
-      // setStatusColor('info')
     }
   }, [statusColor, statusMessage]);
 
   function submitData() {
     if (categoryName === '' || categoryDesc === '') {
-      // setStatusColor("warning")
-      // setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
       setValidationError(true)
       return
     }
@@ -100,10 +81,7 @@ const { addCategory } = useCategoryService()
         }
         setStatusMessage(result.statusMessage)
     })
-
-
   }
-
 
   function getDocumentFromFile($event) {
     if ($event.target.files[0]) {
@@ -123,17 +101,6 @@ const { addCategory } = useCategoryService()
       }
     }
   }
-
-  function fileToBase64(file) {
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-    })
-
-  }
-
-
 
   return (
     <>
