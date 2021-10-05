@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 
 import { useHistory } from 'react-router-dom';
-import { useAuth } from 'src/service/auth';
+import { authService } from 'src/service/auth';
 import {
   CButton,
   CCard,
@@ -30,7 +30,7 @@ import { useToastService } from 'src/service/utils';
 const Login = () => {
 
   const history = useHistory();
-  const { login } = useAuth()  
+  // const { login } = useAuth()  
   const {  
     statusMessage,
     statusColor,   
@@ -57,7 +57,7 @@ const Login = () => {
       return
     }
     setLoadingModal(true)
-    const result = await login({username : teacherUsername, password : teacherPassword})
+    const result = await authService.login({username : teacherUsername, password : teacherPassword})
       console.log(result)
       setLoadingModal(false)
       if (result === true){

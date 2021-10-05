@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { HashRouter, Route, Switch,Redirect } from 'react-router-dom';
 
-import { useAuth } from './service/auth';
+// import { useAuth } from './service/auth';
 import './scss/style.scss';
+import { authService } from './service/auth';
 
 const loading = (
   <div className="pt-3 text-center">
@@ -21,11 +22,11 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'));
 
 
 function PrivateRoute ({component: Component, ...rest}) {
-  const { authed } = useAuth();
+  // const { authed } = useAuth();
   return (
     <Route exact
       {...rest}
-      render={(props) => authed === true
+      render={(props) => authService.isAuthenticated === true
         ? <Component {...props} />
         : <Redirect to={{pathname: '/login', state: {from: props.location}}} />}
     />
