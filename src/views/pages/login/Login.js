@@ -25,19 +25,11 @@ import {
   CToastBody,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { useToastService } from 'src/service/utils';
+import { toastService } from 'src/service/utils';
 
 const Login = () => {
 
-  const history = useHistory();
-  // const { login } = useAuth()  
-  const {  
-    statusMessage,
-    statusColor,   
-    setStatusColor,
-    setStatusMessage,
-    addToast,
-    toasters} = useToastService()
+  const history = useHistory(); 
   
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
@@ -46,12 +38,16 @@ const Login = () => {
   const [loadingModal, setLoadingModal] = React.useState(false)
 
   useEffect(() => {
-    if (statusMessage != '') {
-      addToast()
+    if (toastService.statusMessage != '') {
+      toastService.addToast()
     }
-  }, [statusColor, statusMessage]);
+    toastService.statusMessage =''
+    toastService.statusColor ='info'
+  }, [toastService.statusColor, toastService.statusMessage]);
 
-  async function submitData() {
+  async function submitData(e) {
+    e.preventDefault()
+  
     if (teacherUsername === '' || teacherPassword === '') {
       setValidationError(true)
       return
@@ -64,8 +60,9 @@ const Login = () => {
         history.push("/dashboard");
       }
       else {
-        setStatusColor('danger')
-        setStatusMessage(result)
+        toastService.statusColor = 'danger'
+        toastService.statusMessage = result
+
       }
   
   }
@@ -104,7 +101,9 @@ const Login = () => {
                     </CInputGroup>
                     <CRow>
                       <CCol xs="6">
-                        <CButton color="primary" className="px-4" onClick={submitData} type="submit">Login</CButton>
+                        <CButton color="primary" className="px-4" onClick={(e) => {
+                          submitData(e)
+                        }} type="submit">Login</CButton>
                       </CCol>
                       <CCol xs="6" className="text-right">
                         <CButton color="link" className="px-0">Forgot password?</CButton>
@@ -126,13 +125,12 @@ const Login = () => {
 
         </CRow>
         <CRow >
-          {Object.keys(toasters).map((toasterKey) => (
+          {/* {Object.keys(toastService.toasters).map((toasterKey) => ( */}
             <CToaster
-              position={toasterKey}
-              key={'toaster' + toasterKey}
+              position={toastService.position}
             >
               {
-                toasters[toasterKey].map((toast, key) => {
+                toastService.toasts.map((toast, key) => {
                   return (
                     <CToast
                       key={'toast' + key}
@@ -152,7 +150,7 @@ const Login = () => {
                 })
               }
             </CToaster>
-          ))}
+          {/* ))} */}
         </CRow>
       </CContainer>
     </div>
