@@ -2,8 +2,6 @@ import * as React from "react";
 import { BASE_URL, PATH_URL } from 'src/config.json'
 const axios = require('axios').default;
 
-const authContext = React.createContext();
-
 export const authService = {
   isAuthenticated: false,
   checkAuth() {
@@ -39,15 +37,13 @@ export const authService = {
                 try {
                   
                     const result = await axios.post(baseEndpoint + pathEndpoint, requestBody)
+                    console.log(result)
                     if (result.data.statusCode === 0 && result.status === 200) {
                     
                       let loginInfo = result.data.data[0]
                       sessionStorage.setItem('loginInfo', JSON.stringify(loginInfo))
-                      // setAuthed(true);
                       this.isAuthenticated = true
                       resolve(this.isAuthenticated)
-                      
-                      // resolve(true)
                     } else {
                       resolve(result.data.statusMessage)
                     }
@@ -55,7 +51,7 @@ export const authService = {
                 }
                 catch(e){
                   console.log(e)
-                  resolve(e)
+                  resolve(e.message)
                 }
               })
    }
@@ -112,26 +108,10 @@ export function useAuth() {
                 }
               })
    }
-
    return {
     authed,
     login,
     logout,
     checkAuth
    };
-
-}
-
-export function AuthProvider({ children }) {
-   const auth = useAuth();
-
-   return (
-     <authContext.Provider value={auth}>
-       {children}
-     </authContext.Provider>
-   )
-}
-
-export default function AuthConsumer() {
-   return React.useContext(authContext);
 }
