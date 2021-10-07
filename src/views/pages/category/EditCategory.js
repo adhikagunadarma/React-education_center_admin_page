@@ -12,12 +12,6 @@ import {
   CInput,
   CLabel,
   CRow,
-  CModal,
-  CModalBody,
-  CToaster,
-  CToast,
-  CToastHeader,
-  CToastBody,
   CInvalidFeedback,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'

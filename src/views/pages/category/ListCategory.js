@@ -13,11 +13,6 @@ import {
   CModalTitle,
   CModal,
   CModalBody,
-  CToaster,
-  CToast,
-  CToastHeader,
-  CToastBody,
-  CLabel,
   CImg
 } from '@coreui/react'
 
