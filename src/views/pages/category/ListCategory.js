@@ -19,14 +19,12 @@ import {
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
-import { useCategoryService } from 'src/service/category';
+import { categoryService } from 'src/service/category';
 import { LoadingModal, ToastComponent, toastService } from 'src/service/utils';
 
 const fields = ['categoryThumbnail', 'categoryName', 'categoryDescription', 'action']
 
 const ListCategory = () => {
-
-  const { getCategories, deleteCategory } = useCategoryService()
 
   const history = useHistory();
   
@@ -52,7 +50,7 @@ const ListCategory = () => {
 
     setIsLoading(true)
     return new Promise( async (resolve) => {
-      const result = await getCategories();
+      const result = await categoryService.getCategories();
       if (result.statusCode === 0) {
         resolve(true)
         setCategories(result.data)
@@ -74,22 +72,19 @@ const ListCategory = () => {
     setIsDeleteModalShown(true)
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     setIsDeleteModalShown(false)
     setIsLoading(true)
-    return new Promise( async (resolve) => {
-      const result = await deleteCategory({id : selectedCategory.id});
+      const result = await categoryService.deleteCategory({id : selectedCategory.id});
       setIsLoading(false)
       if (result.statusCode === 0){
         toastService.statusColor = 'success'
-        resolve(true)
+       
       }else{
         toastService.statusColor = 'danger'
-        resolve(false)
       }
       toastService.statusMessage = result.statusMessage
       // window.location.reload();
-    })
 
   }
 
