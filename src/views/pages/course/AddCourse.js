@@ -28,12 +28,11 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
 import { useCourseService } from 'src/service/course';
-import { useCategoryService } from 'src/service/category';
+import { categoryService } from 'src/service/category';
 import { useFileService, useToastService } from 'src/service/utils';
 
 const AddCourse = () => {
 
-    const { getCategories } = useCategoryService()
     const { addCourse } = useCourseService()    
     const { fileToBase64 } = useFileService()
     const {  
@@ -69,7 +68,7 @@ const AddCourse = () => {
     function fetchDataCategories() {
         setLoadingModal(true)
         return new Promise( async (resolve) => {
-            const result = await getCategories();
+            const result = await categoryService.getCategories();
             if (result.statusCode === 0) {
               resolve(true)
               setCategories(result.data)
