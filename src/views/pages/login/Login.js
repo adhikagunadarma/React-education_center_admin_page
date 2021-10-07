@@ -16,16 +16,11 @@ import {
   CInputGroupText,
   CRow,
   CInvalidFeedback,
-  CModal,
-  CModalBody,
-  CToaster,
-  CToast,
-  CToastHeader,
-  CLabel,
-  CToastBody,
+    CModal,
+    CModalBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { toastService } from 'src/service/utils';
+import { toastService, ToastComponent, LoadingModal } from 'src/service/utils';
 
 const Login = () => {
 
@@ -33,10 +28,8 @@ const Login = () => {
   
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
-
   const [validationError, setValidationError] = React.useState(false)
-  const [loadingModal, setLoadingModal] = React.useState(false)
-
+  const [isLoading, setIsLoading] = React.useState(false)
   useEffect(() => {
     if (toastService.statusMessage != '') {
       toastService.addToast()
@@ -52,18 +45,20 @@ const Login = () => {
       setValidationError(true)
       return
     }
-    setLoadingModal(true)
-    const result = await authService.login({username : teacherUsername, password : teacherPassword})
+    
+    setIsLoading(true)
+    setTimeout(async (_) => {
+      const result = await authService.login({username : teacherUsername, password : teacherPassword})
       console.log(result)
-      setLoadingModal(false)
+      setIsLoading(false)
       if (result === true){
         history.push("/dashboard");
       }
       else {
         toastService.statusColor = 'danger'
         toastService.statusMessage = result
-
       }
+    },1000)
   
   }
   return (
@@ -111,47 +106,16 @@ const Login = () => {
                     </CRow>
                   </CForm>
                 </CCardBody>
-                <CModal
-                  show={loadingModal}
-                  onClose={setLoadingModal}
-                >
-                  <CModalBody>
-                    Please wait a moment..
-                  </CModalBody>
-                </CModal>
+            
               </CCard>
             </CCardGroup>
           </CCol>
 
         </CRow>
         <CRow >
-          {/* {Object.keys(toastService.toasters).map((toasterKey) => ( */}
-            <CToaster
-              position={toastService.position}
-            >
-              {
-                toastService.toasts.map((toast, key) => {
-                  return (
-                    <CToast
-                      key={'toast' + key}
-                      show={true}
-                      autohide={toast.autohide}
-                      fade={toast.fade}
-                      color={toast.statusColor}
-                    >
-                      <CToastHeader closeButton={toast.closeButton}>
-                        Alert Notification
-                      </CToastHeader>
-                      <CToastBody>
-                        <CLabel>{toast.statusMessage}</CLabel>
-                      </CToastBody>
-                    </CToast>
-                  )
-                })
-              }
-            </CToaster>
-          {/* ))} */}
-        </CRow>
+          <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
+          </CRow>
       </CContainer>
     </div>
   )
