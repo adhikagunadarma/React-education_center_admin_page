@@ -1,5 +1,13 @@
 import * as React from "react";
-
+import {
+    CToaster,
+    CToast,
+    CToastHeader,
+    CLabel,
+    CToastBody,
+    CModal,
+    CModalBody
+  } from '@coreui/react'
 
 export const fileService = {
     fileToBase64(file){
@@ -21,14 +29,6 @@ export const toastService = {
     closeButton : true,
     fade : true,
     toasts : [],
-    // toasters : (() => {
-    //     return this.toasts.reduce((toasters, toast) => {
-    //         toasters[toast.position] = toasters[toast.position] || []
-    //         toasters[toast.position].push(toast)
-    //         return toasters
-    //     }, {})
-    // }),
-
     addToast(){
         this.toasts = [
             ...this.toasts,
@@ -40,8 +40,51 @@ export const toastService = {
                 statusColor : this.statusColor
             }
         ]
-    }
+    },
+}
 
+export const ToastComponent = (props) => {
+    return (
+        <CToaster
+          position={props.position}
+        >
+          {
+            props.toasts.map((toast, key) => {
+              return (
+                <CToast
+                  key={'toast' + key}
+                  show={true}
+                  autohide={toast.autohide}
+                  fade={toast.fade}
+                  color={toast.statusColor}
+                >
+                  <CToastHeader closeButton={toast.closeButton}>
+                    Alert Notification
+                  </CToastHeader>
+                  <CToastBody>
+                    <CLabel>{toast.statusMessage}</CLabel>
+                  </CToastBody>
+                </CToast>
+              )
+            })
+          }
+        </CToaster>
+    )
+}
+
+export const LoadingModal = (props) => {
+    return (
+        <CModal
+        show={props.isLoading}
+        onClose={((_) => {
+            props.isLoading = false
+        })}
+      >
+        <CModalBody>
+            {props.message}
+        </CModalBody>
+      </CModal>
+    )
 }
 
 export function useFileService(){
