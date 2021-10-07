@@ -16,12 +16,11 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
-import { useCategoryService } from 'src/service/category';
+import { categoryService } from 'src/service/category';
 import { toastService, LoadingModal, ToastComponent, fileService } from 'src/service/utils';
 
 const EditCategory = () => {
 
-  const { editCategory, getCategory } = useCategoryService()
 
   const history = useHistory();
   const { id } = useParams();
@@ -57,7 +56,7 @@ const EditCategory = () => {
       let request = {
           id : id
       }
-      const result = await getCategory(request)
+      const result = await categoryService.getCategory(request)
       setIsLoading(false)
       if (result.statusCode === 0) {
         resolve(true)
@@ -91,7 +90,7 @@ const EditCategory = () => {
           categoryThumbnail: categoryThumbnail,
           categoryThumbnailName: categoryThumbnailName
       }
-      const result = await editCategory(request)
+      const result = await categoryService.editCategory(request)
       setIsLoading(false)
       if (result.statusCode === 0) {
           resolve(true)
