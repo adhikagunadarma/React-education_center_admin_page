@@ -23,19 +23,11 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
 import { useCategoryService } from 'src/service/category';
-import { useToastService, useFileService } from 'src/service/utils';
+import { toastService, LoadingModal, ToastComponent, fileService } from 'src/service/utils';
 
 const EditCategory = () => {
 
   const { editCategory, getCategory } = useCategoryService()
-  const { fileToBase64 } = useFileService()
-  const {  
-    statusMessage,
-    statusColor,   
-    setStatusColor,
-    setStatusMessage,
-    addToast,
-    toasters} = useToastService()
 
   const history = useHistory();
   const { id } = useParams();
@@ -45,7 +37,7 @@ const EditCategory = () => {
   const [categoryThumbnail, setCategoryThumbnail] = React.useState('')
   const [categoryThumbnailName, setCategoryThumbnailName] = React.useState('')
 
-  const [loadingModal, setLoadingModal] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(false)
   const [validationError, setValidationError] = React.useState(false)
 
   const filelimitSize = 50 * 1024 * 1024;
@@ -53,24 +45,26 @@ const EditCategory = () => {
 
 
   useEffect(() => {
-    if (statusMessage != '') {
-      addToast() // kalo abis ada perubahan status message / color, baru add tiast
+    if (toastService.statusMessage != '') {
+      toastService.addToast()
     }
     if (id != null) {
       getData()
     }
-  }, [statusColor, statusMessage]);
+    // toastService.statusMessage =''
+    // toastService.statusColor ='info'
+  }, [toastService.statusColor, toastService.statusMessage]);
 
 
   function getData() {
 
-    setLoadingModal(true)
+    setIsLoading(true)
     return new Promise( async (resolve) => {
       let request = {
           id : id
       }
       const result = await getCategory(request)
-      setLoadingModal(false)
+      setIsLoading(false)
       if (result.statusCode === 0) {
         resolve(true)
         
@@ -78,13 +72,12 @@ const EditCategory = () => {
         setCategoryName(result.data.categoryName)
         setCategoryThumbnail(result.data.categoryThumbnail)
         setCategoryThumbnailName(result.data.categoryThumbnailName)
-        setStatusColor('success')
 
       } else {
         resolve(false)
-        setStatusColor('danger')
+        toastService.statusColor = 'danger'
+        toastService.statusMessage = result.statusMessage
       }
-      setStatusMessage(result.statusMessage)
     })
 
 
@@ -95,7 +88,7 @@ const EditCategory = () => {
       setValidationError(true)
       return
     }
-    setLoadingModal(true)
+    setIsLoading(true)
     return new Promise( async (resolve) => {
       let request = {
           id : id,
@@ -105,16 +98,16 @@ const EditCategory = () => {
           categoryThumbnailName: categoryThumbnailName
       }
       const result = await editCategory(request)
-      setLoadingModal(false)
+      setIsLoading(false)
       if (result.statusCode === 0) {
           resolve(true)
-          setStatusColor('success')
+          toastService.statusColor = 'success'
           history.push("/list-category");
       } else {
           resolve(false)
-          setStatusColor('danger')
+          toastService.statusColor = 'danger'
       }
-      setStatusMessage(result.statusMessage)
+      toastService.statusMessage = result.statusMessage
   
     })
   }
@@ -127,13 +120,15 @@ const EditCategory = () => {
       var fileName = file.name;
       var filePath = $event.target.value
       if (fileSize < filelimitSize) {
-        fileToBase64(file).then((fileData) => {
+        fileService.fileToBase64(file).then((fileData) => {
           setCategoryThumbnail(fileData)
           setCategoryThumbnailName(fileName)
 
         })
       } else {
-        this.publicParam.presentAlert("Warning", warningFileLimit)
+        
+        toastService.statusColor = 'danger'
+        toastService.statusMessage = warningFileLimit
       }
     }
   }
@@ -206,44 +201,13 @@ const EditCategory = () => {
               <CButton onClick={saveData} className="mr-1 mb-1" type="submit" size="sm" color="primary"><CIcon name="cil-scrubber" /> Submit</CButton>
               <CButton className="mr-1 mb-1" type="reset" size="sm" color="danger"><CIcon name="cil-ban" /> Reset</CButton>
             </CCardFooter>
-            <CModal
-              show={loadingModal}
-              onClose={setLoadingModal}
-            >
-              <CModalBody>
-                Please wait a moment..
-              </CModalBody>
-            </CModal>
+          
           </CCard>
         </CCol>
         <CCol sm="12" lg="6">
-          {Object.keys(toasters).map((toasterKey) => (
-            <CToaster
-              position={toasterKey}
-              key={'toaster' + toasterKey}
-            >
-              {
-                toasters[toasterKey].map((toast, key) => {
-                  return (
-                    <CToast
-                      key={'toast' + key}
-                      show={true}
-                      autohide={toast.autohide}
-                      fade={toast.fade}
-                      color={toast.statusColor}
-                    >
-                      <CToastHeader closeButton={toast.closeButton}>
-                        Alert Notification
-                      </CToastHeader>
-                      <CToastBody>
-                        <CLabel>{toast.statusMessage}</CLabel>
-                      </CToastBody>
-                    </CToast>
-                  )
-                })
-              }
-            </CToaster>
-          ))}
+        
+        <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
         </CCol>
       </CRow>
     </>

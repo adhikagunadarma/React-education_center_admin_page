@@ -25,40 +25,37 @@ import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
 import { useCategoryService } from 'src/service/category';
-import { useToastService } from 'src/service/utils';
+import { LoadingModal, ToastComponent, toastService } from 'src/service/utils';
 
 const fields = ['categoryThumbnail', 'categoryName', 'categoryDescription', 'action']
 
 const ListCategory = () => {
 
   const { getCategories, deleteCategory } = useCategoryService()
-  const {  
-    statusMessage,
-    statusColor,   
-    setStatusColor,
-    setStatusMessage,
-    addToast,
-    toasters} = useToastService()
 
   const history = useHistory();
   
   const [categories, setCategories] = React.useState([])
   const [selectedCategory, setSelectedCategory] = React.useState('')
   
-  const [loadingModal, setLoadingModal] = React.useState(false)
-  const [deleteModal, setDeleteModal] = React.useState(false)
+  const [isLoading, setIsLoading] = React.useState(false)
+  const [isDeleteModalShown, setIsDeleteModalShown] = React.useState(false)
 
   useEffect(() => {
     getData()
-    if (statusMessage != '') {
-      addToast() // kalo abis ada perubahan status message / color, baru add tiast
+    if (toastService.statusMessage != '') {
+      toastService.addToast()
     }
+    toastService.statusMessage =''
+    toastService.statusColor ='info'
 
-  }, [statusColor, statusMessage]);
+  }, [toastService.statusColor, toastService.statusMessage]);
+
+
 
   function getData() {
 
-    setLoadingModal(true)
+    setIsLoading(true)
     return new Promise( async (resolve) => {
       const result = await getCategories();
       if (result.statusCode === 0) {
@@ -66,10 +63,10 @@ const ListCategory = () => {
         setCategories(result.data)
       } else {
         resolve(false)
-        setStatusColor('danger')
-        setStatusMessage(result.statusMessage)
+        toastService.statusColor = 'danger'
+        toastService.statusMessage = result.statusMessage
       }
-      setLoadingModal(false)
+      setIsLoading(false)
     })
   }
 
@@ -79,23 +76,24 @@ const ListCategory = () => {
 
   function deleteData(data, index) {
     setSelectedCategory(data)
-    setDeleteModal(true)
+    setIsDeleteModalShown(true)
   }
 
   function confirmDelete() {
-    setDeleteModal(false)
-    setLoadingModal(true)
+    setIsDeleteModalShown(false)
+    setIsLoading(true)
     return new Promise( async (resolve) => {
       const result = await deleteCategory({id : selectedCategory.id});
-      setLoadingModal(false)
+      setIsLoading(false)
       if (result.statusCode === 0){
+        toastService.statusColor = 'success'
         resolve(true)
-        setStatusColor('success')
       }else{
+        toastService.statusColor = 'danger'
         resolve(false)
-        setStatusColor('danger')
       }
-      window.location.reload();
+      toastService.statusMessage = result.statusMessage
+      // window.location.reload();
     })
 
   }
@@ -173,18 +171,11 @@ const ListCategory = () => {
               />
             </CCardBody>
           </CCard>
+         
           <CModal
-            show={loadingModal}
-            onClose={setLoadingModal}
-          >
-            <CModalBody>
-              Please wait a moment..
-            </CModalBody>
-          </CModal>
-          <CModal
-            show={deleteModal}
+            show={isDeleteModalShown}
             onClose={() => {
-              setDeleteModal(false)
+              setIsDeleteModalShown(false)
               setSelectedCategory('')
             }}
           >
@@ -201,7 +192,7 @@ const ListCategory = () => {
               <CButton
                 color="secondary"
                 onClick={() => {
-                  setDeleteModal(false)
+                  setIsDeleteModalShown(false)
                   setSelectedCategory('')
                 }}
               >Cancel</CButton>
@@ -209,33 +200,10 @@ const ListCategory = () => {
           </CModal>
         </CCol>
         <CCol sm="12" lg="12">
-          {Object.keys(toasters).map((toasterKey) => (
-            <CToaster
-              position={toasterKey}
-              key={'toaster' + toasterKey}
-            >
-              {
-                toasters[toasterKey].map((toast, key) => {
-                  return (
-                    <CToast
-                      key={'toast' + key}
-                      show={true}
-                      autohide={toast.autohide}
-                      fade={toast.fade}
-                      color={toast.statusColor}
-                    >
-                      <CToastHeader closeButton={toast.closeButton}>
-                        Alert Notification
-                      </CToastHeader>
-                      <CToastBody>
-                        <CLabel>{toast.statusMessage}</CLabel>
-                      </CToastBody>
-                    </CToast>
-                  )
-                })
-              }
-            </CToaster>
-          ))}
+        <CRow >
+          <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
+          </CRow>
         </CCol>
       </CRow>
     </>
