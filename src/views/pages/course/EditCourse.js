@@ -27,13 +27,12 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory,useParams } from "react-router-dom";
-import { useCategoryService } from 'src/service/category';
+import { categoryService, useCategoryService } from 'src/service/category';
 import { useCourseService } from 'src/service/course';
 import { useFileService, useToastService } from 'src/service/utils';
 
 const EditCourse = () => {
 
-    const { getCategories } = useCategoryService()
     const { editCourse, getCourse } = useCourseService()
     const { fileToBase64 } = useFileService()
     const {  
@@ -99,7 +98,7 @@ const EditCourse = () => {
         
         setLoadingModal(true)
         return new Promise( async (resolve) => {
-            const result = await getCategories();
+            const result = await categoryService.getCategories();
             if (result.statusCode === 0) {
               resolve(true)
               setCategories(result.data)
