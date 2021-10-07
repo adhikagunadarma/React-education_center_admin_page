@@ -16,12 +16,11 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
-import { useCategoryService } from 'src/service/category';
+import { categoryService } from 'src/service/category';
 import { fileService, LoadingModal, ToastComponent, toastService } from 'src/service/utils';
 
 const AddCategory = () => {
 
-  const { addCategory } = useCategoryService()
 
   const history = useHistory();
 
@@ -57,7 +56,7 @@ const AddCategory = () => {
           categoryThumbnail: categoryThumbnail,
           categoryThumbnailName: categoryThumbnailName
     }
-    const result = await addCategory(request)
+    const result = await categoryService.addCategory(request)
         setIsLoading(false)
         if (result.statusCode === 0) {
             resolve(true)
