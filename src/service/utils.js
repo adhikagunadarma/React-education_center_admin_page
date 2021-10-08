@@ -44,22 +44,29 @@ export const toastService = {
 }
 
 export const ToastComponent = (props) => {
+ 
+    const position = 'top-center'
+    const autoHide =  true && 5000
+    const closeButton =  true
+    const fade = true
+
     return (
         <CToaster
-          position={props.position}
+          position={position}
         >
           {
             props.toasts.map((toast, key) => {
               return (
                 <CToast
+                
                   key={'toast' + key}
                   show={true}
-                  autohide={toast.autohide}
-                  fade={toast.fade}
+                  autohide={autoHide}
+                  fade={fade}
                   color={toast.statusColor}
                 >
-                  <CToastHeader closeButton={toast.closeButton}>
-                    Alert Notification
+                  <CToastHeader closeButton={closeButton}>
+                    {/* Alert Notification */}
                   </CToastHeader>
                   <CToastBody>
                     <CLabel>{toast.statusMessage}</CLabel>
