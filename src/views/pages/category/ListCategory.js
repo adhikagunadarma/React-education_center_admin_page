@@ -30,19 +30,22 @@ const ListCategory = () => {
   
   const [categories, setCategories] = React.useState([])
   const [selectedCategory, setSelectedCategory] = React.useState('')
-  
+
+  const [statusColor, setStatusColor] = React.useState('info')
+  const [statusMessage, setStatusMessage] = React.useState('')
+
   const [isLoading, setIsLoading] = React.useState(false)
   const [isDeleteModalShown, setIsDeleteModalShown] = React.useState(false)
 
   useEffect(() => {
     getData()
-    if (toastService.statusMessage != '') {
-      toastService.addToast()
-    }
-    toastService.statusMessage =''
-    toastService.statusColor ='info'
+    // if (statusMessage != '') {
+    //   toastService.addToast()
+    // }
+    // toastService.statusMessage =''
+    // toastService.statusColor ='info'
 
-  }, [toastService.statusColor, toastService.statusMessage]);
+  },);
 
 
 
@@ -56,8 +59,10 @@ const ListCategory = () => {
         setCategories(result.data)
       } else {
         resolve(false)
-        toastService.statusColor = 'danger'
-        toastService.statusMessage = result.statusMessage
+        setStatusColor('danger')
+        setStatusMessage(result.statusMessage)
+        // toastService.statusColor = 'danger'
+        // toastService.statusMessage = result.statusMessage
       }
       setIsLoading(false)
     })
@@ -78,13 +83,12 @@ const ListCategory = () => {
       const result = await categoryService.deleteCategory({id : selectedCategory.id});
       setIsLoading(false)
       if (result.statusCode === 0){
-        toastService.statusColor = 'success'
-       
+        setStatusColor('success')
       }else{
-        toastService.statusColor = 'danger'
+        setStatusColor('danger')
       }
-      toastService.statusMessage = result.statusMessage
-      // window.location.reload();
+      setStatusMessage(result.statusMessage)
+      setSelectedCategory('')
 
   }
 
@@ -192,7 +196,7 @@ const ListCategory = () => {
         <CCol sm="12" lg="12">
         <CRow >
           <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
-          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
+          <ToastComponent statusColor={statusColor} statusMessage = {statusMessage}></ToastComponent>
           </CRow>
         </CCol>
       </CRow>
