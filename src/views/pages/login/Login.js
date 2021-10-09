@@ -20,7 +20,7 @@ import {
     CModalBody
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { toastService, ToastComponent, LoadingModal } from 'src/service/utils';
+import { ToastComponent, LoadingModal } from 'src/service/utils';
 
 const Login = () => {
 
@@ -33,11 +33,6 @@ const Login = () => {
   const [isLoading, setIsLoading] = React.useState(false)
   const [toasts, setToasts] = React.useState([])
  
-  // useEffect(() => {
-
-  // },toasts);
-
-
   async function submitData(e) {
     e.preventDefault()
   
