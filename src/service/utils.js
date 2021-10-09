@@ -55,7 +55,7 @@ export const ToastComponent = (props) => {
           position={position}
         >
           {
-            props.toasts.map((toast, key) => {
+            props.listToasts.map((toast, key) => {
               return (
                 <CToast
                 

@@ -29,20 +29,13 @@ const Login = () => {
   const [teacherUsername, setTeacherUsername] = React.useState('')
   const [teacherPassword, setTeacherPassword] = React.useState('')
 
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
-
   const [validationError, setValidationError] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [toasts, setToasts] = React.useState([])
  
-  useEffect(() => {
-    // if (toastService.statusMessage != '') {
-    //   toastService.addToast()
-    // }
-    // toastService.statusMessage =''
-    // toastService.statusColor ='info'
-  });
+  // useEffect(() => {
+
+  // },toasts);
 
 
   async function submitData(e) {
@@ -62,14 +55,11 @@ const Login = () => {
         history.push("/dashboard");
       }
       else {
-        setStatusColor('danger')
-        setStatusMessage(result)
-        setToasts(
-          ...toasts,
-          { 
-              statusMessage : 'danger', 
-              statusColor : result
-          })
+        toasts.push({
+          statusColor : 'danger',
+          statusMessage : result
+        })
+        setToasts([...toasts] )
       }
     },1000)
   
@@ -127,7 +117,7 @@ const Login = () => {
         </CRow>
         <CRow >
           <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
-          <ToastComponent toasts={toasts}></ToastComponent>
+          <ToastComponent listToasts={toasts}></ToastComponent>
           </CRow>
       </CContainer>
     </div>
