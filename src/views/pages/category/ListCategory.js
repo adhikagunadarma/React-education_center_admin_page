@@ -20,7 +20,7 @@ import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
 import { categoryService } from 'src/service/category';
-import { LoadingModal, ToastComponent, toastService } from 'src/service/utils';
+import { LoadingModal, ToastComponent } from 'src/service/utils';
 
 const fields = ['categoryThumbnail', 'categoryName', 'categoryDescription', 'action']
 
@@ -31,20 +31,17 @@ const ListCategory = () => {
   const [categories, setCategories] = React.useState([])
   const [selectedCategory, setSelectedCategory] = React.useState('')
 
-  const [statusColor, setStatusColor] = React.useState('info')
-  const [statusMessage, setStatusMessage] = React.useState('')
-
   const [isLoading, setIsLoading] = React.useState(false)
   const [isDeleteModalShown, setIsDeleteModalShown] = React.useState(false)
+  const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
+
+  const [toasts, setToasts] = React.useState([])
+  
 
   useEffect(() => {
-    getData()
-    // if (statusMessage != '') {
-    //   toastService.addToast()
-    // }
-    // toastService.statusMessage =''
-    // toastService.statusColor ='info'
-
+    if (isFirstTimeLoad){
+      getData()
+    }
   },);
 
 
@@ -57,12 +54,15 @@ const ListCategory = () => {
       if (result.statusCode === 0) {
         resolve(true)
         setCategories(result.data)
+        setIsFirstTimeLoad(false)
       } else {
         resolve(false)
-        setStatusColor('danger')
-        setStatusMessage(result.statusMessage)
-        // toastService.statusColor = 'danger'
-        // toastService.statusMessage = result.statusMessage
+        toasts.push({
+          statusColor : 'danger',
+          statusMessage : result.statusMessage
+        })
+        setToasts([...toasts] )
+        
       }
       setIsLoading(false)
     })
@@ -82,14 +82,17 @@ const ListCategory = () => {
     setIsLoading(true)
       const result = await categoryService.deleteCategory({id : selectedCategory.id});
       setIsLoading(false)
-      if (result.statusCode === 0){
-        setStatusColor('success')
-      }else{
-        setStatusColor('danger')
-      }
-      setStatusMessage(result.statusMessage)
+      let toast = result.statusCode === 0 ? {
+        statusColor : 'success',
+        statusMessage : result.statusMessage
+      } : {
+        statusColor : 'danger',
+        statusMessage : result.statusMessage
+      };
+      toasts.push(toast)
+      setToasts([...toasts] )
       setSelectedCategory('')
-
+      getData()
   }
 
   return (
@@ -196,7 +199,7 @@ const ListCategory = () => {
         <CCol sm="12" lg="12">
         <CRow >
           <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
-          <ToastComponent statusColor={statusColor} statusMessage = {statusMessage}></ToastComponent>
+          <ToastComponent listToasts={toasts}></ToastComponent>
           </CRow>
         </CCol>
       </CRow>
