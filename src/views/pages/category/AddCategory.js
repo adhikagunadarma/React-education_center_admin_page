@@ -32,16 +32,14 @@ const AddCategory = () => {
   const [isLoading, setIsLoading] = React.useState(false)
   const [validationError, setValidationError] = React.useState(false)
 
+  const [toasts, setToasts] = React.useState([])
+
   const filelimitSize = 50 * 1024 * 1024;
   const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
   useEffect(() => {
-    if (toastService.statusMessage != '') {
-      toastService.addToast()
-    }
-    toastService.statusMessage =''
-    toastService.statusColor ='info'
-  }, [toastService.statusColor, toastService.statusMessage]);
+
+  });
 
   function submitData() {
     if (categoryName === '' || categoryDesc === '') {
@@ -52,21 +50,26 @@ const AddCategory = () => {
     return new Promise(async(resolve) => {
       let request = {
         categoryName: categoryName,
-          categoryDescription: categoryDesc,
+        categoryDesc: categoryDesc,
           categoryThumbnail: categoryThumbnail,
           categoryThumbnailName: categoryThumbnailName
     }
     const result = await categoryService.addCategory(request)
         setIsLoading(false)
+
+        let toast = result.statusCode === 0 ? {
+          statusColor : 'success',
+          statusMessage : result.statusMessage
+        } : {
+          statusColor : 'danger',
+          statusMessage : result.statusMessage
+        };
+        toasts.push(toast)
+        setToasts([...toasts] )
+
         if (result.statusCode === 0) {
-            resolve(true)
-            toastService.statusColor = 'success'
             history.push("/list-category");
-        } else {
-            resolve(false)
-            toastService.statusColor = 'danger'
         }
-        toastService.statusColor = result.statusMessage
     })
   }
 
@@ -83,8 +86,12 @@ const AddCategory = () => {
 
         })
       } else {
-        toastService.statusColor = 'danger'
-        toastService.statusMessage = warningFileLimit
+        let toast = {
+          statusColor : 'danger',
+          statusMessage : warningFileLimit
+        };
+        toasts.push(toast)
+        setToasts([...toasts] )
       }
     }
   }
@@ -163,7 +170,7 @@ const AddCategory = () => {
         </CCol>
         <CCol sm="12" lg="6">
         <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
-          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
+          <ToastComponent listToasts={toasts}></ToastComponent>
         </CCol>
       </CRow>
     </>
