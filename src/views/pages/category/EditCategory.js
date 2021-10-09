@@ -17,7 +17,7 @@ import {
 import CIcon from '@coreui/icons-react'
 import { useHistory, useParams } from "react-router-dom";
 import { categoryService } from 'src/service/category';
-import { toastService, LoadingModal, ToastComponent, fileService } from 'src/service/utils';
+import { LoadingModal, ToastComponent, fileService } from 'src/service/utils';
 
 const EditCategory = () => {
 
@@ -32,21 +32,19 @@ const EditCategory = () => {
 
   const [isLoading, setIsLoading] = React.useState(false)
   const [validationError, setValidationError] = React.useState(false)
+  const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
+  
+  const [toasts, setToasts] = React.useState([])
 
   const filelimitSize = 50 * 1024 * 1024;
   const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
 
   useEffect(() => {
-    if (toastService.statusMessage != '') {
-      toastService.addToast()
-    }
-    if (id != null) {
+    if (isFirstTimeLoad){
       getData()
     }
-    // toastService.statusMessage =''
-    // toastService.statusColor ='info'
-  }, [toastService.statusColor, toastService.statusMessage]);
+  });
 
 
   function getData() {
@@ -65,11 +63,17 @@ const EditCategory = () => {
         setCategoryName(result.data.categoryName)
         setCategoryThumbnail(result.data.categoryThumbnail)
         setCategoryThumbnailName(result.data.categoryThumbnailName)
-
+        setIsFirstTimeLoad(false)
       } else {
         resolve(false)
-        toastService.statusColor = 'danger'
-        toastService.statusMessage = result.statusMessage
+        let toast = {
+          statusColor : 'danger',
+          statusMessage : result.statusMessage
+        };
+        toasts.push(toast)
+        setToasts([...toasts] )
+        
+        history.push("/list-category");
       }
     })
 
@@ -92,15 +96,20 @@ const EditCategory = () => {
       }
       const result = await categoryService.editCategory(request)
       setIsLoading(false)
+      
+      let toast = result.statusCode === 0 ? {
+        statusColor : 'success',
+        statusMessage : result.statusMessage
+      } : {
+        statusColor : 'danger',
+        statusMessage : result.statusMessage
+      };
+      toasts.push(toast)
+      setToasts([...toasts] )
+
       if (result.statusCode === 0) {
-          resolve(true)
-          toastService.statusColor = 'success'
           history.push("/list-category");
-      } else {
-          resolve(false)
-          toastService.statusColor = 'danger'
       }
-      toastService.statusMessage = result.statusMessage
   
     })
   }
@@ -120,8 +129,12 @@ const EditCategory = () => {
         })
       } else {
         
-        toastService.statusColor = 'danger'
-        toastService.statusMessage = warningFileLimit
+        let toast = {
+          statusColor : 'danger',
+          statusMessage : warningFileLimit
+        };
+        toasts.push(toast)
+        setToasts([...toasts] )
       }
     }
   }
@@ -199,8 +212,8 @@ const EditCategory = () => {
         </CCol>
         <CCol sm="12" lg="6">
         
-        <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
-          <ToastComponent toasts={toastService.toasts} position={toastService.position}></ToastComponent>
+        <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>  
+        <ToastComponent listToasts={toasts}></ToastComponent>
         </CCol>
       </CRow>
     </>
