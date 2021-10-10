@@ -108,6 +108,8 @@ const AddCourse = () => {
                   setToasts([...toasts] )
             
                   if (result.statusCode === 0) {
+                      
+                    resolve(true)
                       history.push("/list-course");
                   }
         })
