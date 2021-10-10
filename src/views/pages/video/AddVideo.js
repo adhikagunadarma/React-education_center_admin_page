@@ -12,80 +12,78 @@ import {
     CInput,
     CLabel,
     CRow,
-    CModal,
-    CModalBody,
-    CToaster,
-    CToast,
-    CToastHeader,
-    CToastBody,
     CInvalidFeedback,
     CSelect
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
-import { useVideoService } from 'src/service/video';
-import { useCourseService } from 'src/service/course';
-import { useFileService, useToastService } from 'src/service/utils';
+import { videoService } from 'src/service/video';
+import { courseService } from 'src/service/course';
+import { fileService, ToastComponent, LoadingModal } from 'src/service/utils';
 
 const AddVideo = () => {
-    const { addVideo } = useVideoService()
-    const { getCoursesByTeacher} = useCourseService()
-    const { fileToBase64 } = useFileService()
-    const {  
-        statusMessage,
-        statusColor,   
-        setStatusColor,
-        setStatusMessage,
-        addToast,
-        toasters} = useToastService()
 
     const history = useHistory();
 
     const [video, setVideo] = React.useState({})
     const [courses, setCourses] = React.useState([]) // all courses
     
-    const [loadingModal, setLoadingModal] = React.useState(false)
+    const [isLoading, setIsLoading] = React.useState(false)
     const [validationError, setValidationError] = React.useState(false)
+    const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
+
+    const [toasts, setToasts] = React.useState([])
     
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
     useEffect(() => {
-        if (statusMessage !== '') {
-            addToast() 
-        }
-        if (courses.length === 0 ){
+        
+        if (isFirstTimeLoad ){
             getCourses()
         }
-    }, [video,statusColor, statusMessage]);
+    },[video]);
 
     function getCourses() {
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-        setLoadingModal(true)
+        setIsLoading(true)
         return new Promise( async (resolve) => {
             const idTeacher = loginInfo.id
-            const result = await getCoursesByTeacher({id : idTeacher});
-            console.log(result)
+            const result = await courseService.getCoursesByTeacher({id : idTeacher});
+
+            setIsLoading(false)
             if (result.statusCode === 0) {
-              resolve(true)
-              setCourses(result.data)
-            } else {
-              resolve(false)
-              setStatusColor('danger')
-              setStatusMessage(result.statusMessage)
-            }
-            setLoadingModal(false)
+                resolve(true)
+                setCourses(result.data)
+                setIsFirstTimeLoad(false)
+              } else {
+                resolve(false)
+                let toast = {
+                  statusColor : 'danger',
+                  statusMessage : result.statusMessage
+                };
+                toasts.push(toast)
+                setToasts([...toasts] )
+                
+                history.push("/list-video");
+              }
         })
       }
 
     function submitData() {
         if (video.videoTitle === undefined || video.videoDescription === undefined || video.videoFile === undefined || video.videoThumbnail === undefined || !video.videoCourse || video.videoCourse == "none") {
-            setStatusColor("warning")
-            setStatusMessage("Mohon mengisi data yang dibutuhkan terlebih dahulu")
+        
             setValidationError(true)
+            let toast = {
+                statusColor : 'warning',
+                statusMessage : "Mohon mengisi data yang dibutuhkan terlebih dahulu"
+              };
+              toasts.push(toast)
+              setToasts([...toasts] )
+              
             return
         }
-        setLoadingModal(true)
+        setIsLoading(true)
         return new Promise( async (resolve) => {
             let request = {
                 videoTitle: video.videoTitle,
@@ -96,17 +94,21 @@ const AddVideo = () => {
                 videoFileName: video.videoFileName,
                 videoCourse : video.videoCourse
             }
-            const result = await addVideo(request)
-                setLoadingModal(false)
-                if (result.statusCode === 0) {
-                    resolve(true)
-                    setStatusColor('success')
-                    history.push("/list-video");
-                } else {
-                    resolve(false)
-                    setStatusColor('danger')
-                }
-                setStatusMessage(result.statusMessage)
+            const result = await videoService.addVideo(request)
+                setIsLoading(false)
+                let toast = result.statusCode === 0 ? {
+                    statusColor : 'success',
+                    statusMessage : result.statusMessage
+                  } : {
+                    statusColor : 'danger',
+                    statusMessage : result.statusMessage
+                  };
+                  toasts.push(toast)
+                  setToasts([...toasts] )
+            
+                  if (result.statusCode === 0) {
+                      history.push("/list-video");
+                  }
         })
     }
 
@@ -117,7 +119,7 @@ const AddVideo = () => {
             var fileName = file.name;
             var filePath = $event.target.value
             if (fileSize < filelimitSize) {
-                let fileData = await fileToBase64(file)
+                let fileData = await fileService.fileToBase64(file)
                     switch (type) {
                         case 'thumbnail':
                              setVideo({...video, videoThumbnail : fileData, videoThumbnailName : fileName})
@@ -127,8 +129,12 @@ const AddVideo = () => {
                             break;
                     }
             } else {
-                    setStatusColor('danger')
-                    setStatusMessage(warningFileLimit)
+                let toast = {
+                    statusColor : 'danger',
+                    statusMessage : warningFileLimit
+                  };
+                  toasts.push(toast)
+                  setToasts([...toasts] )
             }
         }
     }
@@ -251,44 +257,13 @@ const AddVideo = () => {
                             <CButton onClick={submitData} className="mr-1 mb-1" type="submit" size="sm" color="primary"><CIcon name="cil-scrubber" /> Submit</CButton>
                             <CButton className="mr-1 mb-1" type="reset" size="sm" color="danger"><CIcon name="cil-ban" /> Reset</CButton>
                         </CCardFooter>
-                        <CModal
-                            show={loadingModal}
-                            onClose={setLoadingModal}
-                        >
-                            <CModalBody>
-                                Please wait a moment..
-                            </CModalBody>
-                        </CModal>
+                
                         </CCard>
                 </CCol>
                 <CCol sm="12" lg="6">
-                    {Object.keys(toasters).map((toasterKey) => (
-                        <CToaster
-                            position={toasterKey}
-                            key={'toaster' + toasterKey}
-                        >
-                            {
-                                toasters[toasterKey].map((toast, key) => {
-                                    return (
-                                        <CToast
-                                            key={'toast' + key}
-                                            show={true}
-                                            autohide={toast.autohide}
-                                            fade={toast.fade}
-                                            color={toast.statusColor}
-                                        >
-                                            <CToastHeader closeButton={toast.closeButton}>
-                                                Alert Notification
-                                            </CToastHeader>
-                                            <CToastBody>
-                                                <CLabel>{toast.statusMessage}</CLabel>
-                                            </CToastBody>
-                                        </CToast>
-                                    )
-                                })
-                            }
-                        </CToaster>
-                    ))}
+               
+                    <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>  
+                    <ToastComponent listToasts={toasts}></ToastComponent>
                 </CCol>
             </CRow>
         </>
