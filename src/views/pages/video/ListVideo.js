@@ -13,11 +13,6 @@ import {
   CModalTitle,
   CModal,
   CModalBody,
-  CToaster,
-  CToast,
-  CToastHeader,
-  CToastBody,
-  CLabel,
   CImg,
   CSelect
 } from '@coreui/react'
@@ -26,6 +21,7 @@ import { useHistory } from "react-router-dom";
 import { videoService } from 'src/service/video';
 import { courseService } from 'src/service/course';
 import { ToastComponent, LoadingModal } from 'src/service/utils';
+import { authService } from 'src/service/auth';
 
 const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseName', 'action']
 
@@ -43,11 +39,12 @@ const [isDeleteModalShown, setIsDeleteModalShownn] = React.useState(false)
 const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
 
 const [toasts, setToasts] = React.useState([])
-useEffect(() => {
+useEffect(async () => { 
 
   if (isFirstTimeLoad){
     getCourses()
   }
+  
 }, [selectedCourse]);
 
   function getCourses() {
@@ -79,7 +76,7 @@ useEffect(() => {
   }
   setIsLoading(true)
   return new Promise( async (resolve) => {
-    const result = await getVideosByCourse({id : id});
+    const result = await videoService.getVideosByCourse({id : id});
     setIsLoading(false)
     if (result.statusCode === 0) {
       resolve(true)
@@ -120,8 +117,14 @@ function deleteData(data,index){
               toasts.push(toast)
               setToasts([...toasts] )
               setSelectedVideo('')
-              getCourses()
-              // window.location.reload()
+              
+              if (result.statusCode === 0){
+                getData(selectedCourse)
+                history.push('/list-video')
+                // window.location.reload()
+              }
+             
+
 }
 
   return (

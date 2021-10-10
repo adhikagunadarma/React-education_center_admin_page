@@ -12,12 +12,6 @@ import {
     CInput,
     CLabel,
     CRow,
-    CModal,
-    CModalBody,
-    CToaster,
-    CToast,
-    CToastHeader,
-    CToastBody,
     CInvalidFeedback,
     CSelect
 } from '@coreui/react'
