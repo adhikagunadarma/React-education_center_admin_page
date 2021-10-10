@@ -14,19 +14,14 @@ import {
     CModalTitle,
     CModal,
     CModalBody,
-    CToaster,
-    CToast,
-    CToastHeader,
-    CToastBody,
-    CLabel,
     CImg
 } from '@coreui/react'
 
 import CIcon from '@coreui/icons-react'
 
 import { useHistory } from "react-router-dom";
-import { useCourseService } from 'src/service/course';
-import { useToastService } from 'src/service/utils';
+import { courseService } from 'src/service/course';
+import { ToastComponent, LoadingModal } from 'src/service/utils';
 const getBadge = status => {
     switch (status) {
         case 'Active': return 'success'
@@ -41,46 +36,43 @@ const fields = ['courseThumbnail', 'courseName', 'courseCategory', 'courseMember
 
 const ListCourse = () => {
 
-    const { getCoursesByTeacher, deleteCourse, editCourse } = useCourseService()
-    const {  
-        statusMessage,
-        statusColor,   
-        setStatusColor,
-        setStatusMessage,
-        addToast,
-        toasters} = useToastService()
-
     const history = useHistory();
    
     const [courses, setCourses] = React.useState([])
     const [selectedCourse, setSelectedCourse] = React.useState('')
 
-    const [loadingModal, setLoadingModal] = React.useState(false)
-    const [verificationModal, setVerificationModal] = React.useState(null)
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [isVerificationModalShown, setIsVerificationModalShown] = React.useState(null)
+    const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
+    
+    const [toasts, setToasts] = React.useState([])
 
     useEffect(() => {
-        getData()
-        if (statusMessage != '') {
-            addToast() // kalo abis ada perubahan status message / color, baru add tiast
+        if (isFirstTimeLoad){
+            getData()
         }
-    }, [statusColor, statusMessage]);
+    });
 
     function getData() {
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-        setLoadingModal(true)
+        setIsLoading(true)
         return new Promise( async (resolve) => {
             const idTeacher = loginInfo.id
-            const result = await getCoursesByTeacher({id : idTeacher});
-            console.log(result)
+            const result = await courseService.getCoursesByTeacher({id : idTeacher});
+            // console.log(result)
             if (result.statusCode === 0) {
               resolve(true)
               setCourses(result.data)
+              setIsFirstTimeLoad(false)
             } else {
               resolve(false)
-              setStatusColor('danger')
-              setStatusMessage(result.statusMessage)
+              toasts.push({
+                statusColor : 'danger',
+                statusMessage : result.statusMessage
+              })
+              setToasts([...toasts] )
             }
-            setLoadingModal(false)
+            setIsLoading(false)
         })
     }
 
@@ -90,38 +82,40 @@ const ListCourse = () => {
 
     function showVerificationModal(data, index, type) {
         setSelectedCourse(data)
-        setVerificationModal(type)
+        setIsVerificationModalShown(type)
     }
 
     function confirmVerification(type) {
-        setVerificationModal(null)
-        setLoadingModal(true)
-        return new Promise( async (resolve) => {
+        setIsVerificationModalShown(null)
+        setIsLoading(true)
+            let toast;
             if (type==='Delete'){
-                const result = await deleteCourse({id : selectedCourse.id});
-              setLoadingModal(false)
-              if (result.statusCode === 0){
-                resolve(true)
-                setStatusColor('success')
-              }else{
-                resolve(false)
-                setStatusColor('danger')
-              }
-              window.location.reload();
+                const result = await courseService.deleteCourse({id : selectedCourse.id});
+              setIsLoading(false)
+              toast = result.statusCode === 0 ? {
+                statusColor : 'success',
+                statusMessage : result.statusMessage
+              } : {
+                statusColor : 'danger',
+                statusMessage : result.statusMessage
+              };
+        
             }
             if (type==='Publish'){
-                const result = await editCourse({id : selectedCourse.id, coursePublished: true});
-                setLoadingModal(false)
-                if (result.statusCode === 0){
-                  resolve(true)
-                  setStatusColor('success')
-                }else{
-                  resolve(false)
-                  setStatusColor('danger')
-                }
-                window.location.reload();
+                const result = await courseService.editCourse({id : selectedCourse.id, coursePublished: true});
+                setIsLoading(false)
+                toast = result.statusCode === 0 ? {
+                    statusColor : 'success',
+                    statusMessage : result.statusMessage
+                  } : {
+                    statusColor : 'danger',
+                    statusMessage : result.statusMessage
+                  };
             }
-        })
+            toasts.push(toast)
+            setToasts([...toasts] )
+            setSelectedCourse('')
+            getData()
     }
 
     return (
@@ -236,36 +230,36 @@ const ListCourse = () => {
                         </CCardBody>
                     </CCard>
                     <CModal
-                        show={loadingModal}
-                        onClose={setLoadingModal}
+                        show={isLoading}
+                        onClose={setIsLoading}
                     >
                         <CModalBody>
                             Please wait a moment..
                         </CModalBody>
                     </CModal>
                     <CModal
-                        show={verificationModal != null}
+                        show={isVerificationModalShown != null}
                         onClose={() => {
-                            setVerificationModal(null)
+                            setIsVerificationModalShown(null)
                             setSelectedCourse('')
                         }}
                     >
                         <CModalHeader closeButton>
-                            <CModalTitle>{verificationModal} Confirmation</CModalTitle>
+                            <CModalTitle>{isVerificationModalShown} Confirmation</CModalTitle>
                         </CModalHeader>
                         <CModalBody>
-                            Are you sure you want to {verificationModal} course name {selectedCourse.courseName} ?
+                            Are you sure you want to {isVerificationModalShown} course name {selectedCourse.courseName} ?
                         </CModalBody>
                         <CModalFooter>
                             <CButton color="danger"
                                 onClick={() => {
-                                    confirmVerification(verificationModal)
+                                    confirmVerification(isVerificationModalShown)
                                 }}
-                            >{verificationModal}</CButton>
+                            >{isVerificationModalShown}</CButton>
                             <CButton
                                 color="secondary"
                                 onClick={() => {
-                                    setVerificationModal(null)
+                                    setIsVerificationModalShown(null)
                                     setSelectedCourse('')
                                 }}
                             >Cancel</CButton>
@@ -273,33 +267,8 @@ const ListCourse = () => {
                     </CModal>
                 </CCol>
                 <CCol sm="12" lg="12">
-                    {Object.keys(toasters).map((toasterKey) => (
-                        <CToaster
-                            position={toasterKey}
-                            key={'toaster' + toasterKey}
-                        >
-                            {
-                                toasters[toasterKey].map((toast, key) => {
-                                    return (
-                                        <CToast
-                                            key={'toast' + key}
-                                            show={true}
-                                            autohide={toast.autohide}
-                                            fade={toast.fade}
-                                            color={toast.statusColor}
-                                        >
-                                            <CToastHeader closeButton={toast.closeButton}>
-                                                Alert Notification
-                                            </CToastHeader>
-                                            <CToastBody>
-                                                <CLabel>{toast.statusMessage}</CLabel>
-                                            </CToastBody>
-                                        </CToast>
-                                    )
-                                })
-                            }
-                        </CToaster>
-                    ))}
+                <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+          <ToastComponent listToasts={toasts}></ToastComponent>
                 </CCol>
             </CRow>
         </>
