@@ -23,61 +23,53 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory } from "react-router-dom";
-import { useVideoService } from 'src/service/video';
-import { useCourseService } from 'src/service/course';
-import { useToastService } from 'src/service/utils';
+import { videoService } from 'src/service/video';
+import { courseService } from 'src/service/course';
+import { ToastComponent, LoadingModal } from 'src/service/utils';
 
 const fields = ['videoThumbnail','videoTitle', 'videoDescription','videoCourseName', 'action']
 
 const ListVideo = () => {
 
 const history = useHistory();
-
-const { getVideosByCourse, deleteVideo } = useVideoService()
-const { getCoursesByTeacher} = useCourseService()
-const {  
-  statusMessage,
-  statusColor,   
-  setStatusColor,
-  setStatusMessage,
-  addToast,
-  toasters} = useToastService()
   
 const [videos, setVideos] = React.useState([])
 const [courses, setCourses] = React.useState([]) // all courses
 const [selectedCourse, setSelectedCourse] = React.useState('') // all courses
 const [selectedVideo, setSelectedVideo] = React.useState('')
 
-const [loadingModal, setLoadingModal] = React.useState(false)
-const [deleteModal, setDeleteModal] = React.useState(false)
+const [isLoading, setIsLoading] = React.useState(false)
+const [isDeleteModalShown, setIsDeleteModalShownn] = React.useState(false)
+const [isFirstTimeLoad, setIsFirstTimeLoad] = React.useState(true)
 
+const [toasts, setToasts] = React.useState([])
 useEffect(() => {
-  if (statusMessage != ''){
-    addToast() 
-  }
 
-  if (courses.length === 0 ){
+  if (isFirstTimeLoad){
     getCourses()
   }
-
-}, [selectedCourse,statusColor,statusMessage]);
+}, [selectedCourse]);
 
   function getCourses() {
     let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
-    setLoadingModal(true)
+    setIsLoading(true)
     return new Promise( async (resolve) => {
         const idTeacher = loginInfo.id
-        const result = await getCoursesByTeacher({id : idTeacher});
-        console.log(result)
+        const result = await courseService.getCoursesByTeacher({id : idTeacher});
+        
+        setIsLoading(false)
         if (result.statusCode === 0) {
-          resolve(true)
-          setCourses(result.data)
-        } else {
-          resolve(false)
-          setStatusColor('danger')
-          setStatusMessage(result.statusMessage)
-        }
-        setLoadingModal(false)
+              resolve(true)
+              setCourses(result.data)
+              setIsFirstTimeLoad(false)
+            } else {
+              resolve(false)
+              toasts.push({
+                statusColor : 'danger',
+                statusMessage : result.statusMessage
+              })
+              setToasts([...toasts] )
+            }
     })
   }
 
@@ -85,18 +77,21 @@ useEffect(() => {
   if (!id || id == "none"){
     return
   }
-  setLoadingModal(true)
+  setIsLoading(true)
   return new Promise( async (resolve) => {
     const result = await getVideosByCourse({id : id});
+    setIsLoading(false)
     if (result.statusCode === 0) {
       resolve(true)
       setVideos(result.data)
     } else {
       resolve(false)
-      setStatusColor('danger')
-      setStatusMessage(result.statusMessage)
+      toasts.push({
+        statusColor : 'danger',
+        statusMessage : result.statusMessage
+      })
+      setToasts([...toasts] )
     }
-    setLoadingModal(false)
   })
 }
 
@@ -106,26 +101,27 @@ function goToEditVideo(data,index){
 
 function deleteData(data,index){
   setSelectedVideo(data)
-  setDeleteModal(true)
+  setIsDeleteModalShownn(true)
 }
 
-function confirmDelete(){
-  setDeleteModal(false)
-  setLoadingModal(true)
-  return new Promise(async(resolve) => {
-      const result = await deleteVideo({id : selectedVideo.id});
-              setLoadingModal(false)
-              if (result.statusCode === 0){
-                resolve(true)
-                setStatusColor('success')
-              }else{
-                resolve(false)
-                setStatusColor('danger')
-              }
-              window.location.reload();
-      
-  })
+ async function confirmDelete(){
+  setIsDeleteModalShownn(false)
+  setIsLoading(true)
+      const result = await videoService.deleteVideo({id : selectedVideo.id});
+              setIsLoading(false)
+              let toast = result.statusCode === 0 ? {
+                statusColor : 'success',
+                statusMessage : result.statusMessage
+              } : {
+                statusColor : 'danger',
+                statusMessage : result.statusMessage
+              };
 
+              toasts.push(toast)
+              setToasts([...toasts] )
+              setSelectedVideo('')
+              getCourses()
+              // window.location.reload()
 }
 
   return (
@@ -222,18 +218,11 @@ function confirmDelete(){
             />
             </CCardBody>
           </CCard>
-          <CModal 
-              show={loadingModal} 
-              onClose={setLoadingModal}
-            >
-              <CModalBody>
-                Please wait a moment..
-              </CModalBody>
-            </CModal>
+      
             <CModal 
-              show={deleteModal} 
+              show={isDeleteModalShown} 
               onClose={() => {
-                setDeleteModal(false)
+                setIsDeleteModalShownn(false)
                 setSelectedVideo('')
               }}
             >
@@ -250,7 +239,7 @@ function confirmDelete(){
                 <CButton 
                   color="secondary" 
                   onClick={() => {
-                    setDeleteModal(false)
+                    setIsDeleteModalShownn(false)
                     setSelectedVideo('')
                   }}
                 >Cancel</CButton>
@@ -258,33 +247,8 @@ function confirmDelete(){
             </CModal>
         </CCol>
         <CCol sm="12" lg="12">
-              {Object.keys(toasters).map((toasterKey) => (
-                <CToaster
-                  position={toasterKey}
-                  key={'toaster' + toasterKey}
-                >
-                  {
-                    toasters[toasterKey].map((toast, key)=>{
-                    return(
-                      <CToast
-                        key={'toast' + key}
-                        show={true}
-                        autohide={toast.autohide}
-                        fade={toast.fade}
-                        color={toast.statusColor}
-                      >
-                        <CToastHeader closeButton={toast.closeButton}>
-                          Alert Notification
-                        </CToastHeader>
-                        <CToastBody>
-                          <CLabel>{toast.statusMessage}</CLabel>
-                        </CToastBody>
-                      </CToast>
-                    )
-                  })
-                  }
-                </CToaster>
-              ))}
+          <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+          <ToastComponent listToasts={toasts}></ToastComponent>
             </CCol>
       </CRow>
     </>
