@@ -85,7 +85,7 @@ const ListCourse = () => {
         setIsVerificationModalShown(type)
     }
 
-    function confirmVerification(type) {
+    async function confirmVerification(type) {
         setIsVerificationModalShown(null)
         setIsLoading(true)
             let toast;
