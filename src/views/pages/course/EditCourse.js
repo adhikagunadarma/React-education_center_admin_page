@@ -14,10 +14,6 @@ import {
     CRow,
     CModal,
     CModalBody,
-    CToaster,
-    CToast,
-    CToastHeader,
-    CToastBody,
     CInvalidFeedback,
     CSwitch,
     CModalHeader,
@@ -27,22 +23,12 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { useHistory,useParams } from "react-router-dom";
-import { categoryService, useCategoryService } from 'src/service/category';
-import { useCourseService } from 'src/service/course';
-import { useFileService, useToastService } from 'src/service/utils';
+import { categoryService } from 'src/service/category';
+import { courseService } from 'src/service/course';
+import { fileService, ToastComponent, LoadingModal } from 'src/service/utils';
 
 const EditCourse = () => {
 
-    const { editCourse, getCourse } = useCourseService()
-    const { fileToBase64 } = useFileService()
-    const {  
-      statusMessage,
-      statusColor,   
-      setStatusColor,
-      setStatusMessage,
-      addToast,
-      toasters} = useToastService()
-    
     const { id } = useParams();
     const history = useHistory();
 
@@ -50,53 +36,63 @@ const EditCourse = () => {
     const [categories, setCategories] = React.useState([]) // all categories
     const [courseCategory, setCourseCategory] = React.useState([]) // all categories
 
-    const [loadingModal, setLoadingModal] = React.useState(false)
-    const [showCategoryModal, setShowCategoryModal] = React.useState(false)
-    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
+    const [isLoading, setIsLoading] = React.useState(false)
+    const [isCategoryModalShown, setIsCategoryModalShown] = React.useState(false)
     const [validationError, setValidationError] = React.useState(false)
+    const [firstTimeLoad, setFirstTimeLoad] = React.useState(true)
+    
+    const [toasts, setToasts] = React.useState([])
 
     const filelimitSize = 50 * 1024 * 1024;
     const warningFileLimit = "Cannot Upload, maximum Upload of 50 MB";
 
     useEffect(() => {
-        if (statusMessage !== '') {
-            addToast()
-        }
-
         if (firstTimeLoad){
-            fetchDataCategories()
-            getData()
-            setFirstTimeLoad(false)
+            fetchAllData()
+        }
+    }, [course]);
+
+    async function fetchAllData(){
+        setIsLoading(true)
+        let result = await fetchDataCategories()
+        if (result){
+            result = await getData()
+            if (result){
+                setFirstTimeLoad(false)
+            }
+            setIsLoading(false)
+        }else{
+            setIsLoading(false)
         }
 
-    }, [course,statusColor, statusMessage]);
+    }
 
 
     function getData() {
-        setLoadingModal(true)
         return new Promise(async (resolve) => {
             let request = {
                 id : id
             }
-            const result = await getCourse(request)
-            setLoadingModal(false)
+            const result = await courseService.getCourse(request)
             if (result.statusCode === 0) {
               resolve(true)
               setCourse(result.data)
               setCourseCategory(result.data.courseCategory)
-              setStatusColor('success')
-  
             } else {
-              resolve(false)
-              setStatusColor('danger')
+                resolve(false)
+                let toast = {
+                  statusColor : 'danger',
+                  statusMessage : result.statusMessage
+                };
+                toasts.push(toast)
+                setToasts([...toasts] )
+                
+                history.push("/list-course");
             }
-            setStatusMessage(result.statusMessage)
         })
       }
 
       function fetchDataCategories() {
-        
-        setLoadingModal(true)
         return new Promise( async (resolve) => {
             const result = await categoryService.getCategories();
             if (result.statusCode === 0) {
@@ -104,21 +100,25 @@ const EditCourse = () => {
               setCategories(result.data)
             } else {
               resolve(false)
-              setStatusColor('danger')
-              setStatusMessage(result.statusMessage)
+              let toast = {
+                statusColor : 'danger',
+                statusMessage : result.statusMessage
+              };
+              toasts.push(toast)
+              setToasts([...toasts] )
+              
+              history.push("/list-course");
             }
-            setLoadingModal(false)
           })
-    
-    
       }
+
 
     function submitData() {
         if (course.courseName === '' || course.courseDescription === '') {
             setValidationError(true)
             return
         }
-        setLoadingModal(true)
+        setIsLoading(true)
         let loginInfo = JSON.parse(sessionStorage.getItem('loginInfo'))
         return new Promise( async(resolve) => {
             let request = {
@@ -135,17 +135,21 @@ const EditCourse = () => {
                     courseTeacher : loginInfo.id, 
                     courseCategory : courseCategory
             }
-            const result = await editCourse(request)
-                setLoadingModal(false)
-                if (result.statusCode === 0) {
-                    resolve(true)
-                    setStatusColor('success')
-                    history.push("/list-course");
-                } else {
-                    resolve(false)
-                    setStatusColor('danger')
-                }
-                setStatusMessage(result.statusMessage)
+            const result = await courseService.editCourse(request)
+                setIsLoading(false)
+                let toast = result.statusCode === 0 ? {
+                    statusColor : 'success',
+                    statusMessage : result.statusMessage
+                  } : {
+                    statusColor : 'danger',
+                    statusMessage : result.statusMessage
+                  };
+                  toasts.push(toast)
+                  setToasts([...toasts] )
+            
+                  if (result.statusCode === 0) {
+                      history.push("/list-course");
+                  }
         
         })
 
@@ -154,20 +158,27 @@ const EditCourse = () => {
 
     function addCategory(category){
         let checkExist = false
-        setShowCategoryModal(false)
+        setIsCategoryModalShown(false)
         courseCategory.forEach((element) => {
             if (element._id === category.id || element.id === category.id){
                 checkExist = true
             }
         })
-        if (checkExist){
-            setStatusColor('danger')
-            setStatusColor(`Cannot add category ${category.categoryName}, because its already exist`)
-        }else{
+
+        let toast = checkExist ? {
+            statusColor : 'danger',
+            statusMessage : `Cannot add category ${category.categoryName}, because its already exist`
+        } : { 
+            statusColor : 'success',
+            statusMessage : `Success adding category ${category.categoryName}`
+        }
+        
+        toasts.push(toast)
+        setToasts([...toasts] )
+
+        if (!checkExist){
             courseCategory.push(category)
             setCourseCategory(courseCategory)
-            setStatusColor('success')
-            setStatusColor(`Success adding category ${category.categoryName}`)
         }
         
     }
@@ -179,8 +190,12 @@ const EditCourse = () => {
         }
         setCourseCategory(courseCategory)
         
-        setStatusColor('success')
-        setStatusColor(`Success delete category ${category.categoryName}`)
+        let toast = {
+            statusColor : 'success',
+            statusMessage : `Success delete category ${category.categoryName}`
+          };
+          toasts.push(toast)
+          setToasts([...toasts] )
     }
 
 
@@ -191,31 +206,28 @@ const EditCourse = () => {
             var fileName = file.name;
             var filePath = $event.target.value
             if (fileSize < filelimitSize) {
-                let fileData = await fileToBase64(file)
-                    switch (type) {
-                        case 'thumbnail':
-                            
-                            course.courseThumbnail = fileData
-                            course.courseThumbnailName = fileName
+                let fileData = await fileService.fileToBase64(file)
+                switch (type) {
+                    case 'thumbnail':
+                         setCourse({...course, courseThumbnail : fileData, courseThumbnailName : fileName})
+                        break;
+                    case 'trailer':
+                        
+                        setCourse({...course, courseTrailerFile : fileData, courseTrailerName : fileName})
+                        break;
+                    case 'thumbnail_trailer':
 
-                            break;
-                        case 'trailer':
-                            course.courseTrailerFile = fileData
-                            course.courseTrailerName = fileName
-                            break;
-                        case 'thumbnail_trailer':
-
-                            course.courseTrailerThumbnailFile = fileData
-                            course.courseTrailerThumbnailName = fileName
-                            break;
-                    }
-                    setCourse(course)
-                    setStatusColor('success')
-                    setStatusColor(`Success add file`)
+                        setCourse({...course, courseTrailerThumbnailFile : fileData, courseTrailerThumbnailName : fileName})
+                        break;
+                }
 
             } else {
-                    setStatusColor('danger')
-                    setStatusMessage(warningFileLimit)
+                let toast = {
+                    statusColor : 'danger',
+                    statusMessage : warningFileLimit
+                  };
+                  toasts.push(toast)
+                  setToasts([...toasts] )
             }
         }
     }
@@ -341,7 +353,7 @@ const EditCourse = () => {
                                     ))}
                                     <CButton  variant="outline" color="primary" size="sm" className="btn-brand mr-1 mb-1" onClick={() => {
                                    
-                                            setShowCategoryModal(true)
+                                            setIsCategoryModalShown(true)
                                         }}>
                                         <CIcon size="sm" name="cil-plus" className="float-right" />
                                         <span className="mfs-2">Add Category &nbsp;</span></CButton>
@@ -370,17 +382,10 @@ const EditCourse = () => {
                             <CButton onClick={submitData} className="mr-1 mb-1" type="submit" size="sm" color="primary"><CIcon name="cil-scrubber" /> Submit</CButton>
                             <CButton className="mr-1 mb-1" type="reset" size="sm" color="danger"><CIcon name="cil-ban" /> Reset</CButton>
                         </CCardFooter>
+               
                         <CModal
-                            show={loadingModal}
-                            onClose={setLoadingModal}
-                        >
-                            <CModalBody>
-                                Please wait a moment..
-                            </CModalBody>
-                        </CModal>
-                        <CModal
-                            show={showCategoryModal}
-                            onClose={setShowCategoryModal}
+                            show={isCategoryModalShown}
+                            onClose={setIsCategoryModalShown}
                         >
                             <CModalHeader>
                                 <CModalTitle>
@@ -399,33 +404,9 @@ const EditCourse = () => {
                     </CCard>
                 </CCol>
                 <CCol sm="12" lg="6">
-                    {Object.keys(toasters).map((toasterKey) => (
-                        <CToaster
-                            position={toasterKey}
-                            key={'toaster' + toasterKey}
-                        >
-                            {
-                                toasters[toasterKey].map((toast, key) => {
-                                    return (
-                                        <CToast
-                                            key={'toast' + key}
-                                            show={true}
-                                            autohide={toast.autohide}
-                                            fade={toast.fade}
-                                            color={toast.statusColor}
-                                        >
-                                            <CToastHeader closeButton={toast.closeButton}>
-                                                Alert Notification
-                                            </CToastHeader>
-                                            <CToastBody>
-                                                <CLabel>{toast.statusMessage}</CLabel>
-                                            </CToastBody>
-                                        </CToast>
-                                    )
-                                })
-                            }
-                        </CToaster>
-                    ))}
+                  
+                <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>  
+                    <ToastComponent listToasts={toasts}></ToastComponent>
                 </CCol>
             </CRow>
         </>
