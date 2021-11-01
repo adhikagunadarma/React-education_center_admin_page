@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from "react";
 
-import { useHistory } from 'react-router-dom';
-import { authService } from 'src/service/auth';
+import { useHistory } from "react-router-dom";
+import { authService } from "src/service/auth";
 import {
   CButton,
   CCard,
@@ -16,48 +16,54 @@ import {
   CInputGroupText,
   CRow,
   CInvalidFeedback,
-    CModal,
-    CModalBody
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { ToastComponent, LoadingModal } from 'src/service/utils';
+  CModal,
+  CModalBody,
+} from "@coreui/react";
+import CIcon from "@coreui/icons-react";
+import { ToastComponent, LoadingModal } from "src/service/utils";
 
 const Login = () => {
+  const history = useHistory();
 
-  const history = useHistory(); 
-  
-  const [teacherUsername, setTeacherUsername] = React.useState('')
-  const [teacherPassword, setTeacherPassword] = React.useState('')
+  const [teacherUsername, setTeacherUsername] = React.useState("");
+  const [teacherPassword, setTeacherPassword] = React.useState("");
 
-  const [validationError, setValidationError] = React.useState(false)
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [toasts, setToasts] = React.useState([])
- 
+  const [validationError, setValidationError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [toasts, setToasts] = React.useState([]);
+
   async function submitData(e) {
-    e.preventDefault()
-  
-    if (teacherUsername === '' || teacherPassword === '') {
-      setValidationError(true)
-      return
+    e.preventDefault();
+
+    if (teacherUsername === "" || teacherPassword === "") {
+      setValidationError(true);
+      return;
     }
-    
-    setIsLoading(true)
+
+    setIsLoading(true);
     setTimeout(async (_) => {
-      const result = await authService.login({username : teacherUsername, password : teacherPassword})
-      console.log(result)
-      setIsLoading(false)
-      if (result === true){
+      const result = await authService.login({
+        username: teacherUsername,
+        password: teacherPassword,
+      });
+
+      setIsLoading(false);
+      let toast =
+        result.statusCode === 0
+          ? {
+              statusColor: "success",
+              statusMessage: result.statusMessage,
+            }
+          : {
+              statusColor: "danger",
+              statusMessage: result.statusMessage ?? result,
+            };
+      toasts.push(toast);
+      setToasts([...toasts]);
+      if (result.statusCode === 0) {
         history.push("/dashboard");
       }
-      else {
-        toasts.push({
-          statusColor : 'danger',
-          statusMessage : result
-        })
-        setToasts([...toasts] )
-      }
-    },1000)
-  
+    }, 1000);
   }
   return (
     <div className="c-app c-default-layout flex-row align-items-center">
@@ -67,7 +73,12 @@ const Login = () => {
             <CCardGroup>
               <CCard className="p-5">
                 <CCardBody>
-                  <CForm className={"form-horizontal " + (validationError ? 'was-validated' : '')}>
+                  <CForm
+                    className={
+                      "form-horizontal " +
+                      (validationError ? "was-validated" : "")
+                    }
+                  >
                     <h1>Login</h1>
                     <p className="text-muted">Sign In to your account</p>
                     <CInputGroup className="mb-3">
@@ -76,8 +87,19 @@ const Login = () => {
                           <CIcon name="cil-user" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput className="form-control-warning" type="text" placeholder="Username" id="usernameInput" onChange={event => setTeacherUsername(event.target.value)} value={teacherUsername} autoComplete="username" required />
-                      <CInvalidFeedback className="help-block" >
+                      <CInput
+                        className="form-control-warning"
+                        type="text"
+                        placeholder="Username"
+                        id="usernameInput"
+                        onChange={(event) =>
+                          setTeacherUsername(event.target.value)
+                        }
+                        value={teacherUsername}
+                        autoComplete="username"
+                        required
+                      />
+                      <CInvalidFeedback className="help-block">
                         Please provide a valid username
                       </CInvalidFeedback>
                     </CInputGroup>
@@ -87,36 +109,57 @@ const Login = () => {
                           <CIcon name="cil-lock-locked" />
                         </CInputGroupText>
                       </CInputGroupPrepend>
-                      <CInput className="form-control-warning" type="password" id="passwordInput" onChange={event => setTeacherPassword(event.target.value)} value={teacherPassword} placeholder="Password" autoComplete="current-password" required />
-                      <CInvalidFeedback className="help-block" >
+                      <CInput
+                        className="form-control-warning"
+                        type="password"
+                        id="passwordInput"
+                        onChange={(event) =>
+                          setTeacherPassword(event.target.value)
+                        }
+                        value={teacherPassword}
+                        placeholder="Password"
+                        autoComplete="current-password"
+                        required
+                      />
+                      <CInvalidFeedback className="help-block">
                         Please provide a valid password
                       </CInvalidFeedback>
                     </CInputGroup>
                     <CRow>
                       <CCol xs="6">
-                        <CButton color="primary" className="px-4" onClick={(e) => {
-                          submitData(e)
-                        }} type="submit">Login</CButton>
+                        <CButton
+                          color="primary"
+                          className="px-4"
+                          onClick={(e) => {
+                            submitData(e);
+                          }}
+                          type="submit"
+                        >
+                          Login
+                        </CButton>
                       </CCol>
                       <CCol xs="6" className="text-right">
-                        <CButton color="link" className="px-0">Forgot password?</CButton>
+                        <CButton color="link" className="px-0">
+                          Forgot password?
+                        </CButton>
                       </CCol>
                     </CRow>
                   </CForm>
                 </CCardBody>
-            
               </CCard>
             </CCardGroup>
           </CCol>
-
         </CRow>
-        <CRow >
-          <LoadingModal isLoading={isLoading} message='Please wait a moment..'></LoadingModal>
+        <CRow>
+          <LoadingModal
+            isLoading={isLoading}
+            message="Please wait a moment.."
+          ></LoadingModal>
           <ToastComponent listToasts={toasts}></ToastComponent>
-          </CRow>
+        </CRow>
       </CContainer>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;
